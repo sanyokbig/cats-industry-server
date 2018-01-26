@@ -3,11 +3,18 @@ package server
 import (
 	"net/http"
 	"log"
+	"cats-industry-server/server/ws"
 )
 
 func Run(port string) {
-	http.HandleFunc("/ws", ws)
-	http.HandleFunc("/auth", auth)
+	hub := ws.NewHub()
+
+	go hub.Run()
+
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		ws.ServeWs(hub, w, r)
+	})
+
 	log.Printf("listening on :%v\n", port)
 	http.ListenAndServe(":"+port, nil)
 }
