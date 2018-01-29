@@ -1,8 +1,6 @@
 package ws
 
 import (
-	"time"
-	"log"
 	"github.com/satori/go.uuid"
 )
 
@@ -32,15 +30,6 @@ func NewHub() *Hub {
 }
 
 func (h *Hub) Run() {
-	go func() {
-		for {
-			for c := range h.clients {
-				log.Println(c.id)
-			}
-			time.Sleep(time.Second * 2)
-		}
-	}()
-
 	for {
 		select {
 
