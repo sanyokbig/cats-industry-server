@@ -32,7 +32,6 @@ func NewHub() *Hub {
 func (h *Hub) Run() {
 	for {
 		select {
-
 		case client := <-h.register:
 			client.id = uuid.Must(uuid.NewV4()).String()
 
