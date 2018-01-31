@@ -16,10 +16,14 @@ func Run(port string) {
 		ws.ServeWs(hub, w, r)
 	})
 	http.HandleFunc("/authRespond", func(w http.ResponseWriter, r *http.Request) {
-		query:= r.URL.Query()
+		query := r.URL.Query()
 		log.Println(query)
 		w.Write([]byte("<script>window.close()</script>"))
-		auth.VerifyCode(query["code"][0])
+		_, err := auth.CreateToken(query["code"][0])
+		if err != nil {
+			log.Println("failed to create token:", err)
+		}
+
 	})
 
 	log.Printf("listening on :%v\n", port)
