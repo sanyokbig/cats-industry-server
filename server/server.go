@@ -5,9 +5,14 @@ import (
 	"log"
 	"cats-industry-server/server/ws"
 	"cats-industry-server/auth"
+	"cats-industry-server/mongo"
 )
 
-func Run(port string) {
+type Server struct {
+	Db *mongo.Connection
+}
+
+func (s *Server) Run(port string) {
 	hub := ws.NewHub()
 
 	go hub.Run()
