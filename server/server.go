@@ -5,11 +5,11 @@ import (
 	"log"
 	"cats-industry-server/server/ws"
 	"cats-industry-server/auth"
-	"cats-industry-server/mongo"
+	"cats-industry-server/postgres"
 )
 
 type Server struct {
-	Db *mongo.Connection
+	Db *postgres.Connection
 }
 
 func (s *Server) Run(port string) {

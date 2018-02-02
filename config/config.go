@@ -8,12 +8,12 @@ var EveConfig struct {
 	RedirectUri string `env:"REDIRECT_URI"`
 }
 
-var MongoConfig struct {
-	Host string `env:"MONGO_HOST"`
-	Port string `env:"MONGO_PORT"`
-	Db   string `env:"MONGO_DB"`
-	User string `env:"MONGO_USER"`
-	Pass string `env:"MONGO_PASS"`
+var PostgresConfig struct {
+	Host string `env:"POSTGRES_HOST"`
+	Port string `env:"POSTGRES_PORT"`
+	Db   string `env:"POSTGRES_DB"`
+	User string `env:"POSTGRES_USER"`
+	Pass string `env:"POSTGRES_PASS"`
 }
 
 func Parse() {
@@ -21,7 +21,7 @@ func Parse() {
 	if err != nil {
 		panic(err)
 	}
-	err = env.Parse(&MongoConfig)
+	err = env.Parse(&PostgresConfig)
 	if err != nil {
 		panic(err)
 	}

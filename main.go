@@ -3,12 +3,18 @@ package main
 import (
 	"cats-industry-server/server"
 	"cats-industry-server/config"
-	"cats-industry-server/mongo"
+	"cats-industry-server/postgres"
 )
 
 func main() {
 	config.Parse()
-	db := mongo.NewConnection(mongo.GenerateUri(config.MongoConfig.Host, config.MongoConfig.Port, config.MongoConfig.Db, config.MongoConfig.User, config.MongoConfig.Pass))
+	db := postgres.NewConnection(
+		config.PostgresConfig.Host,
+		config.PostgresConfig.Port,
+		config.PostgresConfig.Db,
+		config.PostgresConfig.User,
+		config.PostgresConfig.Pass,
+	)
 
 	err := db.Connect()
 	if err != nil {
