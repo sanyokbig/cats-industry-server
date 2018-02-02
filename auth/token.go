@@ -10,25 +10,18 @@ import (
 	"cats-industry-server/config"
 	"log"
 	"time"
-)
-
-type TokenType uint8
-
-const (
-	Char TokenType = iota + 1
-	Corp
+	"github.com/jmoiron/sqlx"
 )
 
 type Token struct {
-	Id           uint
+	Id           uint   `db:"id"`
 	UserId       uint
-	ExpiresAt    int64
-	Type         TokenType `json:"type"`
-	ExpiresIn    int       `json:"expires_in"`
-	AccessToken  string    `json:"access_token"`
-	RefreshToken string    `json:"refresh_token"`
+	ExpiresAt    int64  `db:"expires_at"`
+	Type         string `json:"type" db:"type"`
+	ExpiresIn    int    `json:"expires_in"`
+	AccessToken  string `json:"access_token" db:"access_token"`
+	RefreshToken string `json:"refresh_token" db:"refresh_token"`
 }
-
 
 // Creates new token using authorization code
 func CreateToken(code string) (token *Token, err error) {
@@ -94,9 +87,17 @@ func (t *Token) Refresh() error {
 	return nil
 }
 
-
 // Updates token from Eve server
 func (t Token) IsExpired() bool {
 	return time.Now().Unix() >= t.ExpiresAt
 }
 
+// Saves token to postgres and updates id in struct
+func (t *Token) Save(db *sqlx.DB) error {
+	rows, err := db.NamedQuery(`INSERT INTO tokens (expires_at, access_token, refresh_token, type) VALUES (:expires_at, :access_token, :refresh_token, :type)`, t)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	return nil
+}

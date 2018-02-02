@@ -9,7 +9,7 @@ import (
 )
 
 type Server struct {
-	Db *postgres.Connection
+	Postgres *postgres.Connection
 }
 
 func (s *Server) Run(port string) {
@@ -24,11 +24,14 @@ func (s *Server) Run(port string) {
 		query := r.URL.Query()
 		log.Println(query)
 		w.Write([]byte("<script>window.close()</script>"))
-		_, err := auth.CreateToken(query["code"][0])
+		token, err := auth.CreateToken(query["code"][0])
 		if err != nil {
 			log.Println("failed to create token:", err)
 		}
-
+		err = token.Save(s.Postgres.DB)
+		if err != nil {
+			log.Println(err)
+		}
 	})
 
 	log.Printf("listening on :%v\n", port)

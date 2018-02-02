@@ -22,7 +22,7 @@ func main() {
 	}
 
 	srv := server.Server{
-		Db: db,
+		Postgres: db,
 	}
 	srv.Run("9962")
 }
