@@ -23,6 +23,15 @@ type Token struct {
 	RefreshToken string `json:"refresh_token" db:"refresh_token"`
 }
 
+type Owner struct {
+	CharacterID        int    `json:"CharacterID"`
+	CharacterName      string `json:"CharacterName"`
+	ExpiresOn          string `json:"ExpiresOn"`
+	Scopes             string `json:"Scopes"`
+	TokenType          string `json:"TokenType"`
+	CharacterOwnerHash string `json:"CharacterOwnerHash"`
+}
+
 // Creates new token using authorization code
 func CreateToken(code string) (token *Token, err error) {
 	token = &Token{Id: 1}
@@ -85,6 +94,39 @@ func (t *Token) Refresh() error {
 
 	log.Println("new", t)
 	return nil
+}
+
+// Gets token owner
+func (t *Token) GetOwner() (*Owner, error) {
+	c := &http.Client{}
+	url := fmt.Sprintf("https://login.eveonline.com/oauth/verify")
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+t.AccessToken)
+
+	resp, err := c.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	o := Owner{}
+
+	err = json.Unmarshal(bodyBytes, &o)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("owner", o)
+	return &o, nil
 }
 
 // Updates token from Eve server
