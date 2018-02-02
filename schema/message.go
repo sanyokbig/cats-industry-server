@@ -1,8 +1,8 @@
-package ws
+package schema
 
 type Payload map[string]interface{}
 
 type Message struct {
 	Type    string  `json:"type"`
-	Payload Payload `json:"data"`
+	Payload Payload `json:"payload"`
 }

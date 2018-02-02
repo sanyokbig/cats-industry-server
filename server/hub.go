@@ -1,4 +1,4 @@
-package ws
+package server
 
 import (
 	"github.com/satori/go.uuid"

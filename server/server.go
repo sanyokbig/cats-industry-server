@@ -3,7 +3,6 @@ package server
 import (
 	"net/http"
 	"log"
-	"cats-industry-server/server/ws"
 	"cats-industry-server/auth"
 	"cats-industry-server/postgres"
 )
@@ -13,12 +12,12 @@ type Server struct {
 }
 
 func (s *Server) Run(port string) {
-	hub := ws.NewHub()
+	hub := NewHub()
 
 	go hub.Run()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		ws.ServeWs(hub, w, r)
+		ServeWs(hub, w, r)
 	})
 	http.HandleFunc("/authRespond", func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query()

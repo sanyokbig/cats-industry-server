@@ -1,11 +1,11 @@
 package session
 
 import (
-	"cats-industry-server/server/ws"
+	"cats-industry-server/server"
 	"cats-industry-server/schema"
 )
 
 type Session struct {
-	socket *ws.Client
+	socket *server.Client
 	user   *schema.User
 }

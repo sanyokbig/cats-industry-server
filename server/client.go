@@ -1,4 +1,4 @@
-package ws
+package server
 
 import (
 	"github.com/gorilla/websocket"
@@ -7,6 +7,7 @@ import (
 	"log"
 	"bytes"
 	"encoding/json"
+	"cats-industry-server/schema"
 )
 
 const (
@@ -123,7 +124,7 @@ func (c *Client) writePump() {
 	}
 }
 
-func (c *Client) Respond(r Message) {
+func (c *Client) Respond(r schema.Message) {
 	resp, err := json.Marshal(r)
 	if err != nil {
 		log.Println(err)
@@ -147,4 +148,9 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
+}
+
+
+func (c *Client) GetID() string {
+	return c.id
 }

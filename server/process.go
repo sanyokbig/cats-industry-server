@@ -1,13 +1,14 @@
-package ws
+package server
 
 import (
 	"encoding/json"
 	"log"
+	"cats-industry-server/schema"
+	"cats-industry-server/server/methods"
 )
 
-// Looks for appropriate handler and calls it
 func processRequest(c *Client, msg []byte) {
-	request := Message{}
+	request := schema.Message{}
 
 	err := json.Unmarshal(msg, &request)
 	if err != nil {
@@ -20,7 +21,7 @@ func processRequest(c *Client, msg []byte) {
 		return
 	}
 
-	handler := Get(request.Type)
+	handler := methods.Get(request.Type)
 
 	if handler == nil {
 		log.Printf("request \"%v\" not handled: unknown type", request)
