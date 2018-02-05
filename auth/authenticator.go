@@ -9,14 +9,11 @@ import (
 
 type Authenticator struct {
 	comms *comms.Comms
+	db    *postgres.Connection
 
 	pending map[string]string
-	db      *postgres.Connection
 	add     chan string
 	remove  chan string
-}
-
-type a interface {
 }
 
 func New(comms *comms.Comms, conn *postgres.Connection) *Authenticator {
