@@ -5,6 +5,14 @@ import (
 	"cats-industry-server/postgres"
 	"log"
 	"net/http"
+
+	"github.com/go-errors/errors"
+)
+
+var (
+	ErrStateNotFoundInQuery = errors.New("state not found in request query")
+	ErrCodeNotFoundInQuery  = errors.New("code not found in request query")
+	ErrUnrecognizedState    = errors.New("unrecognized state")
 )
 
 type Authenticator struct {
@@ -24,41 +32,59 @@ func New(comms *comms.Comms, conn *postgres.Connection) *Authenticator {
 	}
 }
 
-func (a *Authenticator) Run() {
+func (auth *Authenticator) Run() {
 	for {
 		select {
-		case toAdd := <-a.comms.Pending.Add:
+		case toAdd := <-auth.comms.Pending.Add:
 			{
-				a.pending[toAdd.State] = toAdd.Client
+				auth.pending[toAdd.State] = toAdd.Client
 			}
-		case toRemove := <-a.comms.Pending.Remove:
+		case toRemove := <-auth.comms.Pending.Remove:
 			{
-				delete(a.pending, toRemove)
+				delete(auth.pending, toRemove)
 			}
 		}
-		log.Println(a.pending)
+		log.Println(auth.pending)
 	}
 }
 
-func (a *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Request) {
+// Create token using passed code, get owner info, create new character and user if needed
+func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	state := query["state"][0]
-	client, ok := a.pending[state]
-	if !ok {
-		log.Println("unrecognized state")
-		w.Write([]byte("something went horribly wrong :(\nunrecognized state"))
+	state := query.Get("state")
+	code := query.Get("code")
+	if state == "" {
+		log.Println(ErrStateNotFoundInQuery)
+		w.Write([]byte("something went horribly wrong :(\n\n" + ErrStateNotFoundInQuery.Error()))
+
+		return
+	}
+	if code == "" {
+		log.Println(ErrCodeNotFoundInQuery)
+		w.Write([]byte("something went horribly wrong :(\n\n" + ErrCodeNotFoundInQuery.Error()))
+
 		return
 	}
 
-	log.Println(client)
+	_, ok := auth.pending[state]
+	if !ok {
+		log.Println(ErrUnrecognizedState)
+		w.Write([]byte("something went horribly wrong :(\n\n" + ErrUnrecognizedState.Error()))
 
-	w.Write([]byte("<script>window.close()</script>"))
-	token, err := CreateToken(query["code"][0])
+		return
+	}
+
+	// Create token
+	token, err := CreateToken(code)
 	if err != nil {
 		log.Println("failed to create token:", err)
 	}
-	err = token.Save(a.db.DB)
+
+	err = prepareUser(auth.db.DB, token)
 	if err != nil {
-		log.Println(err)
+		w.Write([]byte("something went horribly wrong :(\n\n" + err.Error()))
+		return
 	}
+	w.Write([]byte("<script>window.close()</script>"))
+
 }

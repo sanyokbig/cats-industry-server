@@ -1,20 +1,21 @@
 package auth
 
 import (
-	"fmt"
 	"encoding/base64"
+	"fmt"
 	"io/ioutil"
-	"encoding/json"
 	"net/http"
 
 	"cats-industry-server/config"
 	"log"
 	"time"
+
 	"github.com/jmoiron/sqlx"
 )
 
+//easyjson:json
 type Token struct {
-	Id           uint   `db:"id"`
+	Id           uint `db:"id"`
 	UserId       uint
 	ExpiresAt    int64  `db:"expires_at"`
 	Type         string `json:"type" db:"type"`
@@ -23,8 +24,9 @@ type Token struct {
 	RefreshToken string `json:"refresh_token" db:"refresh_token"`
 }
 
+//easyjson:json
 type Owner struct {
-	CharacterID        int    `json:"CharacterID"`
+	CharacterID        uint   `json:"CharacterID"`
 	CharacterName      string `json:"CharacterName"`
 	ExpiresOn          string `json:"ExpiresOn"`
 	Scopes             string `json:"Scopes"`
@@ -36,7 +38,7 @@ type Owner struct {
 func CreateToken(code string) (token *Token, err error) {
 	token = &Token{Id: 1}
 	c := &http.Client{}
-	url := fmt.Sprintf("https://login.eveonline.com/oauth/token?grant_type=authorization_code&code=%v", code);
+	url := fmt.Sprintf("https://login.eveonline.com/oauth/token?grant_type=authorization_code&code=%v", code)
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
 		return nil, err
@@ -55,7 +57,7 @@ func CreateToken(code string) (token *Token, err error) {
 		return nil, err
 	}
 
-	err = json.Unmarshal(bodyBytes, token)
+	err = token.UnmarshalJSON(bodyBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +89,7 @@ func (t *Token) Refresh() error {
 		return err
 	}
 
-	err = json.Unmarshal(bodyBytes, t)
+	err = t.UnmarshalJSON(bodyBytes)
 	if err != nil {
 		return err
 	}
@@ -120,12 +122,11 @@ func (t *Token) GetOwner() (*Owner, error) {
 
 	o := Owner{}
 
-	err = json.Unmarshal(bodyBytes, &o)
+	err = o.UnmarshalJSON(bodyBytes)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("owner", o)
 	return &o, nil
 }
 
