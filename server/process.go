@@ -7,6 +7,7 @@ import (
 	"cats-industry-server/server/methods"
 )
 
+// General processing of ws requests
 func processRequest(c *Client, msg []byte) {
 	request := schema.Message{}
 
@@ -22,13 +23,15 @@ func processRequest(c *Client, msg []byte) {
 	}
 
 	handler := methods.Get(request.Type)
-
 	if handler == nil {
 		log.Printf("request \"%v\" not handled: unknown type", request)
 		return
 	}
-
 	toSend, err := handler(c, request)
+
+	if err != nil {
+		log.Println(err)
+	}
 
 	if toSend != nil {
 		c.Respond(*toSend)
