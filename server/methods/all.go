@@ -1,12 +1,15 @@
 package methods
 
-import "cats-industry-server/schema"
+import (
+	"cats-industry-server/comms"
+	"cats-industry-server/schema"
+)
 
 type Handler func(c Client, req schema.Message) (resp *schema.Message, err error)
 
 type Client interface {
 	GetID() string
-	//Respond(msg schema.Message)
+	GetComms() *comms.Comms
 }
 
 var all = map[string]Handler{

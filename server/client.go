@@ -1,13 +1,17 @@
 package server
 
 import (
-	"github.com/gorilla/websocket"
-	"net/http"
-	"time"
-	"log"
 	"bytes"
 	"encoding/json"
+
+	"cats-industry-server/comms"
+
+	"github.com/gorilla/websocket"
+
 	"cats-industry-server/schema"
+	"log"
+	"net/http"
+	"time"
 )
 
 const (
@@ -150,7 +154,10 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.readPump()
 }
 
-
 func (c *Client) GetID() string {
 	return c.id
+}
+
+func (c *Client) GetComms() *comms.Comms {
+	return c.hub.comms
 }

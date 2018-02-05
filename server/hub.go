@@ -1,12 +1,14 @@
 package server
 
 import (
+	"cats-industry-server/comms"
 	"github.com/satori/go.uuid"
 )
 
 // hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
+	comms *comms.Comms
 	// Registered clients.
 	clients map[*Client]bool
 
@@ -20,8 +22,9 @@ type Hub struct {
 	unregister chan *Client
 }
 
-func NewHub() *Hub {
+func NewHub(comms *comms.Comms) *Hub {
 	return &Hub{
+		comms:      comms,
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
