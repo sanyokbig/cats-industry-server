@@ -1,8 +1,9 @@
 package schema
 
 import (
-	"github.com/go-errors/errors"
-	"github.com/jmoiron/sqlx"
+	"cats-industry-server/postgres"
+
+	"errors"
 )
 
 type Character struct {
@@ -21,9 +22,9 @@ type Skill struct {
 }
 
 // Create new character and insert fresh id in struct
-func (c *Character) Create(db *sqlx.DB) error {
+func (c *Character) Create(db postgres.NamedQuerier) error {
 	rows, err := db.NamedQuery(`
-		INSERT INTO characters (name, is_main) VALUES (:name, :is_main) RETURNING id
+		INSERT INTO characters (id, name, is_main) VALUES (:id, :name, :is_main) RETURNING id
 	`, c)
 	if err != nil {
 		return err
@@ -42,7 +43,7 @@ func (c *Character) Create(db *sqlx.DB) error {
 	return nil
 }
 
-func (c *Character) Find(db *sqlx.DB, characterID uint) error {
+func (c *Character) Find(db postgres.QueryRowxer, characterID uint) error {
 	err := db.QueryRowx(`
 		SELECT * FROM characters WHERE id = $1
 	`, characterID).StructScan(c)
