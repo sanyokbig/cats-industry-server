@@ -44,7 +44,6 @@ func (auth *Authenticator) Run() {
 				delete(auth.pending, toRemove)
 			}
 		}
-		log.Println(auth.pending)
 	}
 }
 
