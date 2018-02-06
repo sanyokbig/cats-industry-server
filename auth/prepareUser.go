@@ -45,8 +45,13 @@ func prepareUser(db *sqlx.DB, token *Token) error {
 		return errors.New("failed to find user")
 	}
 
+	// Create new user if characters user not found
 	if err == sql.ErrNoRows {
-		// Create new user for
+		err = user.Create(db)
+		if err != nil {
+			log.Println(err)
+			return errors.New("failed to create user")
+		}
 	}
 
 	log.Printf("%+v\n", user)

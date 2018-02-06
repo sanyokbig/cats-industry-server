@@ -6,6 +6,19 @@ type User struct {
 	Id uint `db:"id"`
 }
 
+// Create new user and insert fresh id in struct
+func (u *User) Create(db *sqlx.DB) error {
+	err := db.QueryRowx(`
+		INSERT INTO users DEFAULT VALUES RETURNING id
+	`).StructScan(u)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (u *User) FindByCharacter(db *sqlx.DB, characterID uint) error {
 	err := db.QueryRowx(`
 		WITH link AS (
