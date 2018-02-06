@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// Application user, can have multiple characters.
 type User struct {
 	ID uint `db:"id"`
 }
