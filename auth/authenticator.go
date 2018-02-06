@@ -82,6 +82,7 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 
 	err = prepareUser(auth.db.DB, token)
 	if err != nil {
+		log.Println(err)
 		w.Write([]byte("something went horribly wrong :(\n\n" + err.Error()))
 		return
 	}

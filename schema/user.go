@@ -2,10 +2,12 @@ package schema
 
 import (
 	"cats-industry-server/postgres"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type User struct {
-	Id uint `db:"id"`
+	ID uint `db:"id"`
 }
 
 // Create new user and insert fresh id in struct
@@ -32,5 +34,16 @@ func (u *User) FindByCharacter(db postgres.QueryRowxer, characterID uint) error 
 		return err
 	}
 
+	return nil
+}
+
+func (u *User) LinkWithCharacter(db sqlx.Queryer, characterID uint) (err error) {
+	rows, err := db.Queryx(`
+		INSERT INTO users_characters (user_id, character_id) VALUES ($1, $2)
+	`, u.ID, characterID)
+	if err != nil {
+		return
+	}
+	rows.Close()
 	return nil
 }
