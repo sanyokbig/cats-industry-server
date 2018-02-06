@@ -1,6 +1,7 @@
 package session
 
 import (
+	"cats-industry-server/comms"
 	"cats-industry-server/schema"
 	"cats-industry-server/server"
 )
@@ -13,4 +14,24 @@ type Session struct {
 	Socket  *server.Client
 	User    *schema.User
 	Expires int64
+}
+
+type Sessions struct {
+	comms *comms.Comms
+
+	// sessionID : userID
+	list map[string]uint
+}
+
+func New(comms *comms.Comms) *Sessions {
+	return &Sessions{
+		comms: comms,
+		list:  map[string]uint{},
+	}
+}
+
+func (s *Sessions) Run() {
+	for {
+		select {}
+	}
 }

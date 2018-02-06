@@ -4,6 +4,7 @@ import (
 	"cats-industry-server/auth"
 	"cats-industry-server/comms"
 	"cats-industry-server/postgres"
+	"cats-industry-server/session"
 	"log"
 	"net/http"
 )
@@ -17,9 +18,11 @@ func (s *Server) Run(port string) {
 
 	hub := NewHub(c)
 	authenticator := auth.New(c, s.Postgres)
+	sessions := session.New(c)
 
 	go hub.Run()
 	go authenticator.Run()
+	go sessions.Run()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		ServeWs(hub, w, r)
