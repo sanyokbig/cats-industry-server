@@ -1,13 +1,15 @@
 package schema
 
-import "github.com/jmoiron/sqlx"
+import (
+	"cats-industry-server/postgres"
+)
 
 type User struct {
 	Id uint `db:"id"`
 }
 
 // Create new user and insert fresh id in struct
-func (u *User) Create(db *sqlx.DB) error {
+func (u *User) Create(db postgres.QueryRowxer) error {
 	err := db.QueryRowx(`
 		INSERT INTO users DEFAULT VALUES RETURNING id
 	`).StructScan(u)
@@ -19,7 +21,7 @@ func (u *User) Create(db *sqlx.DB) error {
 	return nil
 }
 
-func (u *User) FindByCharacter(db *sqlx.DB, characterID uint) error {
+func (u *User) FindByCharacter(db postgres.QueryRowxer, characterID uint) error {
 	err := db.QueryRowx(`
 		WITH link AS (
 			SELECT user_id FROM users_characters WHERE character_id = $1
