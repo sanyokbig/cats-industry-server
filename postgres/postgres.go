@@ -3,8 +3,9 @@ package postgres
 import (
 	"github.com/jmoiron/sqlx"
 
-	_ "github.com/lib/pq"
 	"fmt"
+
+	_ "github.com/lib/pq"
 )
 
 type Connection struct {
@@ -31,4 +32,8 @@ func (c *Connection) Connect() error {
 func NewConnection(host, port, db, user, password string) *Connection {
 	connStr := fmt.Sprintf("host='%s' port='%s' dbname='%s' user='%s' password='%s' sslmode=disable", host, port, db, user, password)
 	return &Connection{DB: new(sqlx.DB), connStr: connStr}
+}
+
+type NamedQuerier interface {
+	NamedQuery(query string, arg interface{}) (*sqlx.Rows, error)
 }
