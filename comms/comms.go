@@ -3,6 +3,7 @@ package comms
 // Used to communicate between processes using channels
 type Comms struct {
 	Pending
+	Sessions
 }
 
 func New() *Comms {

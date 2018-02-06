@@ -2,19 +2,13 @@ package session
 
 import (
 	"cats-industry-server/comms"
-	"cats-industry-server/schema"
-	"cats-industry-server/server"
+	"log"
+
+	"github.com/satori/go.uuid"
 )
 
 // Session must be deleted after this time
 const SessionLifetime int64 = 86400 * 7 // One week
-
-type Session struct {
-	ID      string
-	Socket  *server.Client
-	User    *schema.User
-	Expires int64
-}
 
 type Sessions struct {
 	comms *comms.Comms
@@ -24,10 +18,37 @@ type Sessions struct {
 }
 
 func New(comms *comms.Comms) *Sessions {
-	return &Sessions{
+	sessions := &Sessions{
 		comms: comms,
 		list:  map[string]uint{},
 	}
+
+	comms.Sessions = sessions
+	return sessions
+}
+
+// Create session with no user
+func (s *Sessions) Add() (sessionID string) {
+	sessionID = uuid.Must(uuid.NewV4()).String()
+	s.list[sessionID] = 0
+
+	return sessionID
+}
+
+// Assign user to session
+func (s *Sessions) Set(sessionID string, userID uint) {
+	s.list[sessionID] = userID
+	log.Println("setting", sessionID, "to", userID)
+}
+
+// Get user of session
+func (s *Sessions) Get(sessionID string) uint {
+	id, ok := s.list[sessionID]
+
+	if !ok {
+		return 0
+	}
+	return id
 }
 
 func (s *Sessions) Run() {

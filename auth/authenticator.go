@@ -79,12 +79,15 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		log.Println("failed to create token:", err)
 	}
 
-	err = prepareUser(auth.db.DB, token)
+	user, err := prepareUser(auth.db.DB, token)
 	if err != nil {
 		log.Println(err)
 		w.Write([]byte("something went horribly wrong :(\n\n" + err.Error()))
 		return
 	}
+
+	auth.comms.Sessions.Set(state, user.ID)
+
 	w.Write([]byte("<script>window.close()</script>"))
 
 }

@@ -5,9 +5,9 @@ import (
 	"cats-industry-server/config"
 	"cats-industry-server/schema"
 	"fmt"
-	"github.com/go-errors/errors"
-	"github.com/satori/go.uuid"
 	"log"
+
+	"github.com/go-errors/errors"
 )
 
 var scopeSets = map[string]string{
@@ -24,6 +24,7 @@ var (
 //easyjson:json
 type loginRequestPayload struct {
 	ScopeSet string `json:"scope_set"`
+	SID      string `json:"sid"`
 }
 
 // Generate login uri for client and add client to pending
@@ -44,15 +45,11 @@ func loginRequest(c Client, m schema.Message) (resp *schema.Message, err error) 
 		return nil, ErrNoScopeSet
 	}
 
-	// Generate state to identify login response later
-	state, err := uuid.NewV4()
-	if err != nil {
-		log.Println(err)
-		return nil, ErrStateGenFailed
-	}
+	// Set state to client id identify login response later
+	state := payload.SID
 
 	// Add state to pending
-	c.GetComms().Pending.Add <- comms.PendingAdd{State: state.String(), Client: c.GetID()}
+	c.GetComms().Pending.Add <- comms.PendingAdd{State: state, Client: c.GetID()}
 
 	// Generate login uri for client
 	uri := fmt.Sprintf("https://login.eveonline.com/oauth/authorize?response_type=code&redirect_uri=%v&client_id=%v&scope=%v&state=%v", config.EveConfig.RedirectUri, config.EveConfig.ClientId, scopes, state)

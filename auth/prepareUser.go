@@ -10,7 +10,7 @@ import (
 )
 
 // If token owner already in system, use login as him
-func prepareUser(db *sqlx.DB, token *Token) (err error) {
+func prepareUser(db *sqlx.DB, token *Token) (user *schema.User, err error) {
 	tx, err := db.Beginx()
 	if err != nil {
 		err = errors.New("failed to begin tx: " + err.Error())
@@ -61,7 +61,7 @@ func prepareUser(db *sqlx.DB, token *Token) (err error) {
 	var shouldCreateLink bool
 
 	// Find user of character
-	user := &schema.User{}
+	user = &schema.User{}
 	err = user.FindByCharacter(db, character.ID)
 	if err != nil && err != sql.ErrNoRows {
 		err = errors.New("failed to find user: " + err.Error())
@@ -88,7 +88,5 @@ func prepareUser(db *sqlx.DB, token *Token) (err error) {
 		}
 	}
 
-	log.Printf("%+v\n", user)
-
-	return nil
+	return
 }

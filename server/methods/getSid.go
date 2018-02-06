@@ -1,13 +1,15 @@
 package methods
 
 import (
-	"github.com/satori/go.uuid"
 	"cats-industry-server/schema"
 )
 
-func getSid(c Client, req schema.Message) (resp *schema.Message, err error) {
+// Generates new session and returns sid to client
+func getSid(c Client, _ schema.Message) (resp *schema.Message, err error) {
+	sid := c.GetComms().Sessions.Add()
+
 	return &schema.Message{
 		Type:    "sid",
-		Payload: schema.Payload{"sid": uuid.Must(uuid.NewV1()).String()},
+		Payload: schema.Payload{"sid": sid},
 	}, nil
 }

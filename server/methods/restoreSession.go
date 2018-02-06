@@ -1,14 +1,33 @@
 package methods
 
 import (
-	"log"
 	"cats-industry-server/schema"
+	"log"
 )
 
-func restoreSession(c Client, req schema.Message) (resp *schema.Message, err error) {
-	log.Println("log request from", c.GetID())
+//easyjson:json
+type restoreSessionPayload struct {
+	SID string `json:"sid"`
+}
+
+func restoreSession(c Client, m schema.Message) (resp *schema.Message, err error) {
+	log.Println("restoreSession request from", c.GetID())
+
+	// Parse incoming payload
+	payload := restoreSessionPayload{}
+	if err := m.Payload.Deliver(&payload); err != nil {
+		log.Println(err)
+		return nil, ErrPayloadParseFailed
+	}
+
+	userID := c.GetComms().Sessions.Get(payload.SID)
+
+	log.Println(userID)
+
 	return &schema.Message{
-		Type:    "login_uri",
-		Payload: schema.Payload{"uri": "http://google.com"},
+		Type: "restoration",
+		Payload: schema.Payload{
+			"user_id": userID,
+		},
 	}, nil
 }

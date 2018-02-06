@@ -4,7 +4,6 @@ package auth
 
 import (
 	json "encoding/json"
-
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -37,7 +36,7 @@ func easyjson4a0f95aaDecodeCatsIndustryServerAuth(in *jlexer.Lexer, out *Token) 
 			continue
 		}
 		switch key {
-		case "ID":
+		case "Id":
 			out.Id = uint(in.Uint())
 		case "UserId":
 			out.UserId = uint(in.Uint())
@@ -66,7 +65,7 @@ func easyjson4a0f95aaEncodeCatsIndustryServerAuth(out *jwriter.Writer, in Token)
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"ID\":"
+		const prefix string = ",\"Id\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
