@@ -7,10 +7,13 @@ import (
 	"cats-industry-server/session"
 	"log"
 	"net/http"
+
+	"github.com/go-redis/redis"
 )
 
 type Server struct {
 	Postgres *postgres.Connection
+	Redis    *redis.Client
 }
 
 func (s *Server) Run(port string) {
@@ -18,7 +21,7 @@ func (s *Server) Run(port string) {
 
 	hub := NewHub(c)
 	authenticator := auth.New(c, s.Postgres)
-	sessions := session.New(c)
+	sessions := session.New(c, s.Redis)
 
 	go hub.Run()
 	go authenticator.Run()

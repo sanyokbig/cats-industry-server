@@ -16,12 +16,22 @@ var PostgresConfig struct {
 	Pass string `env:"POSTGRES_PASS"`
 }
 
+var RedisConfig struct {
+	Uri  string `env:"REDIS_URI"`
+	DB   int    `env:"REDIS_DB"`
+	Pass string `env:"REDIS_PASS"`
+}
+
 func Parse() {
 	err := env.Parse(&EveConfig)
 	if err != nil {
 		panic(err)
 	}
 	err = env.Parse(&PostgresConfig)
+	if err != nil {
+		panic(err)
+	}
+	err = env.Parse(&RedisConfig)
 	if err != nil {
 		panic(err)
 	}

@@ -4,6 +4,7 @@ import (
 	"cats-industry-server/comms"
 	"log"
 
+	"github.com/go-redis/redis"
 	"github.com/satori/go.uuid"
 )
 
@@ -12,14 +13,16 @@ const SessionLifetime int64 = 86400 * 7 // One week
 
 type Sessions struct {
 	comms *comms.Comms
+	redis *redis.Client
 
 	// sessionID : userID
 	list map[string]uint
 }
 
-func New(comms *comms.Comms) *Sessions {
+func New(comms *comms.Comms, client *redis.Client) *Sessions {
 	sessions := &Sessions{
 		comms: comms,
+		redis: client,
 		list:  map[string]uint{},
 	}
 
