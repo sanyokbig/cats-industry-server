@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
+	"cats-industry-server/postgres"
 	"cats-industry-server/schema"
 	"log"
 	"net/http"
@@ -160,4 +161,8 @@ func (c *Client) GetID() string {
 
 func (c *Client) GetComms() *comms.Comms {
 	return c.hub.comms
+}
+
+func (c *Client) GetPostgres() *postgres.Connection {
+	return c.hub.postgres
 }

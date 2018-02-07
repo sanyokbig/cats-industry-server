@@ -1,7 +1,7 @@
 package comms
 
 type Sessions interface {
-	Add() (sessionID string)
-	Set(sessionID string, userID uint)
-	Get(sessionID string) uint
+	New() (sessionID string, err error)
+	Set(sessionID string, userID uint) error
+	Get(sessionID string) (userID uint, err error)
 }

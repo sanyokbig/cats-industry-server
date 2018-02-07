@@ -2,7 +2,8 @@ package session
 
 import (
 	"cats-industry-server/comms"
-	"log"
+
+	"strconv"
 
 	"github.com/go-redis/redis"
 	"github.com/satori/go.uuid"
@@ -14,16 +15,12 @@ const SessionLifetime int64 = 86400 * 7 // One week
 type Sessions struct {
 	comms *comms.Comms
 	redis *redis.Client
-
-	// sessionID : userID
-	list map[string]uint
 }
 
 func New(comms *comms.Comms, client *redis.Client) *Sessions {
 	sessions := &Sessions{
 		comms: comms,
 		redis: client,
-		list:  map[string]uint{},
 	}
 
 	comms.Sessions = sessions
@@ -31,27 +28,43 @@ func New(comms *comms.Comms, client *redis.Client) *Sessions {
 }
 
 // Create session with no user
-func (s *Sessions) Add() (sessionID string) {
-	sessionID = uuid.Must(uuid.NewV4()).String()
-	s.list[sessionID] = 0
+func (s *Sessions) New() (sessionID string, err error) {
+	// Generate new SessionID
+	newSessionID, err := uuid.NewV4()
+	if err != nil {
+		return "", err
+	}
 
-	return sessionID
+	// Store empty session
+	sessionID = newSessionID.String()
+	err = s.redis.Set(sessionID, 0, 0).Err()
+	if err != nil {
+		return "", err
+	}
+
+	return sessionID, nil
 }
 
 // Assign user to session
-func (s *Sessions) Set(sessionID string, userID uint) {
-	s.list[sessionID] = userID
-	log.Println("setting", sessionID, "to", userID)
+func (s *Sessions) Set(sessionID string, userID uint) (err error) {
+	return s.redis.Set(sessionID, userID, 0).Err()
 }
 
 // Get user of session
-func (s *Sessions) Get(sessionID string) uint {
-	id, ok := s.list[sessionID]
-
-	if !ok {
-		return 0
+func (s *Sessions) Get(sessionID string) (userID uint, err error) {
+	result, err := s.redis.Get(sessionID).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return 0, nil
+		}
+		return 0, err
 	}
-	return id
+
+	userIDint, err := strconv.Atoi(result)
+	if err != nil {
+		return 0, err
+	}
+	return uint(userIDint), nil
 }
 
 func (s *Sessions) Run() {

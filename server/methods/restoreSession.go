@@ -12,7 +12,6 @@ type restoreSessionPayload struct {
 
 func restoreSession(c Client, m schema.Message) (resp *schema.Message, err error) {
 	log.Println("restoreSession request from", c.GetID())
-
 	// Parse incoming payload
 	payload := restoreSessionPayload{}
 	if err := m.Payload.Deliver(&payload); err != nil {
@@ -20,14 +19,21 @@ func restoreSession(c Client, m schema.Message) (resp *schema.Message, err error
 		return nil, ErrPayloadParseFailed
 	}
 
-	userID := c.GetComms().Sessions.Get(payload.SID)
+	userID, err := c.GetComms().Sessions.Get(payload.SID)
+	if err != nil {
+		return nil, err
+	}
 
-	log.Println(userID)
+	character := &schema.Character{}
+	err = character.FindByUser(c.GetPostgres(), userID)
+	if err != nil {
+		return nil, err
+	}
 
 	return &schema.Message{
 		Type: "restoration",
 		Payload: schema.Payload{
-			"user_id": userID,
+			"username": character.Name,
 		},
 	}, nil
 }

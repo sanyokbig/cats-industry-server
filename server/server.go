@@ -19,7 +19,7 @@ type Server struct {
 func (s *Server) Run(port string) {
 	c := comms.New()
 
-	hub := NewHub(c)
+	hub := NewHub(c, s.Postgres)
 	authenticator := auth.New(c, s.Postgres)
 	sessions := session.New(c, s.Redis)
 

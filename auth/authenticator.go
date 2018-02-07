@@ -86,7 +86,10 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	auth.comms.Sessions.Set(state, user.ID)
+	err = auth.comms.Sessions.Set(state, user.ID)
+	if err != nil {
+		w.Write([]byte("something went horribly wrong :(\n\n" + err.Error()))
+	}
 
 	w.Write([]byte("<script>window.close()</script>"))
 

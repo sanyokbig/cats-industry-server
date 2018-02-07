@@ -2,13 +2,16 @@ package server
 
 import (
 	"cats-industry-server/comms"
+	"cats-industry-server/postgres"
+
 	"github.com/satori/go.uuid"
 )
 
 // hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
-	comms *comms.Comms
+	comms    *comms.Comms
+	postgres *postgres.Connection
 	// Registered clients.
 	clients map[*Client]bool
 
@@ -22,9 +25,10 @@ type Hub struct {
 	unregister chan *Client
 }
 
-func NewHub(comms *comms.Comms) *Hub {
+func NewHub(comms *comms.Comms, connection *postgres.Connection) *Hub {
 	return &Hub{
 		comms:      comms,
+		postgres:   connection,
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
