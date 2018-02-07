@@ -1,18 +1,17 @@
 package schema
 
 import (
-	"cats-industry-server/postgres"
-
 	"github.com/jmoiron/sqlx"
 )
 
 // Application user, can have multiple characters.
 type User struct {
-	ID uint `db:"id"`
+	ID         uint            `json:"id" db:"id"`
+	Characters *CharactersList `json:"characters"`
 }
 
 // Create new user and insert fresh id in struct
-func (u *User) Create(db postgres.QueryRowxer) error {
+func (u *User) Create(db sqlx.Queryer) error {
 	err := db.QueryRowx(`
 		INSERT INTO users DEFAULT VALUES RETURNING id
 	`).StructScan(u)
@@ -24,7 +23,7 @@ func (u *User) Create(db postgres.QueryRowxer) error {
 	return nil
 }
 
-func (u *User) Find(db postgres.QueryRowxer, userID uint) error {
+func (u *User) Find(db sqlx.Queryer, userID uint) error {
 	err := db.QueryRowx(`
 		SELECT * FROM users WHERE id = $1
 	`, userID).StructScan(u)
@@ -36,13 +35,28 @@ func (u *User) Find(db postgres.QueryRowxer, userID uint) error {
 	return nil
 }
 
-func (u *User) FindByCharacter(db postgres.QueryRowxer, characterID uint) error {
+func (u *User) FindByCharacter(db sqlx.Queryer, characterID uint) error {
 	err := db.QueryRowx(`
 		WITH link AS (
 			SELECT user_id FROM users_characters WHERE character_id = $1
 		) SELECT * FROM users WHERE id = (SELECT user_id FROM link)
 	`, characterID).StructScan(u)
 
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *User) FindWithCharacters(db sqlx.Queryer, userID uint) error {
+	err := u.Find(db, userID)
+	if err != nil {
+		return err
+	}
+
+	u.Characters = &CharactersList{}
+	err = u.Characters.FindByUser(db, userID)
 	if err != nil {
 		return err
 	}

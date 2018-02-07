@@ -4,14 +4,20 @@ import (
 	"cats-industry-server/postgres"
 
 	"errors"
+
+	"github.com/jmoiron/sqlx"
 )
 
+//easyjson:json
 type Character struct {
-	ID     uint   `db:"id"`
-	Name   string `db:"name"`
-	IsMain bool   `db:"is_main"`
-	Skills []Skill
+	ID     uint    `json:"id" db:"id"`
+	Name   string  `json:"name" db:"name"`
+	IsMain bool    `json:"is_main" db:"is_main"`
+	Skills []Skill `json:"-"`
 }
+
+//easyjson:json
+type CharactersList []Character
 
 //easyjson:json
 type Skill struct {
@@ -43,7 +49,7 @@ func (c *Character) Create(db postgres.NamedQuerier) error {
 	return nil
 }
 
-func (c *Character) Find(db postgres.QueryRowxer, characterID uint) error {
+func (c *Character) Find(db sqlx.Queryer, characterID uint) error {
 	err := db.QueryRowx(`
 		SELECT * FROM characters WHERE id = $1
 	`, characterID).StructScan(c)
@@ -55,15 +61,24 @@ func (c *Character) Find(db postgres.QueryRowxer, characterID uint) error {
 	return nil
 }
 
-func (c *Character) FindByUser(db postgres.QueryRowxer, userID uint) error {
-	err := db.QueryRowx(`
+func (cl *CharactersList) FindByUser(db sqlx.Queryer, userID uint) error {
+	rows, err := db.Queryx(`
 		WITH link AS (
 			SELECT character_id FROM users_characters WHERE user_id = $1
 		) SELECT * FROM characters WHERE id = (SELECT character_id FROM link)
-	`, userID).StructScan(c)
-
+	`, userID)
 	if err != nil {
 		return err
+	}
+	defer rows.Close()
+
+	ch := Character{}
+	for rows.Next() {
+		err = rows.StructScan(&ch)
+		if err != nil {
+			return err
+		}
+		*cl = append(*cl, ch)
 	}
 
 	return nil

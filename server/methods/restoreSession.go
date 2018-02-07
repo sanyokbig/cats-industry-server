@@ -10,6 +10,7 @@ type restoreSessionPayload struct {
 	SID string `json:"sid"`
 }
 
+// Sends client auth info including user with its characters
 func restoreSession(c Client, m schema.Message) (resp *schema.Message, err error) {
 	log.Println("restoreSession request from", c.GetID())
 	// Parse incoming payload
@@ -19,13 +20,14 @@ func restoreSession(c Client, m schema.Message) (resp *schema.Message, err error
 		return nil, ErrPayloadParseFailed
 	}
 
+	// Get userID from session
 	userID, err := c.GetComms().Sessions.Get(payload.SID)
 	if err != nil {
 		return nil, err
 	}
 
-	character := &schema.Character{}
-	err = character.FindByUser(c.GetPostgres(), userID)
+	user := &schema.User{}
+	err = user.FindWithCharacters(c.GetPostgres(), userID)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +35,7 @@ func restoreSession(c Client, m schema.Message) (resp *schema.Message, err error
 	return &schema.Message{
 		Type: "restoration",
 		Payload: schema.Payload{
-			"username": character.Name,
+			"user": user,
 		},
 	}, nil
 }
