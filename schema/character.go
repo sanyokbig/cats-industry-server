@@ -65,7 +65,7 @@ func (cl *CharactersList) FindByUser(db sqlx.Queryer, userID uint) error {
 	rows, err := db.Queryx(`
 		WITH link AS (
 			SELECT character_id FROM users_characters WHERE user_id = $1
-		) SELECT * FROM characters WHERE id = (SELECT character_id FROM link)
+		) SELECT * FROM characters WHERE id IN (SELECT character_id FROM link)
 	`, userID)
 	if err != nil {
 		return err
