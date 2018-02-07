@@ -24,6 +24,18 @@ func (u *User) Create(db postgres.QueryRowxer) error {
 	return nil
 }
 
+func (u *User) Find(db postgres.QueryRowxer, userID uint) error {
+	err := db.QueryRowx(`
+		SELECT * FROM users WHERE id = $1
+	`, userID).StructScan(u)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (u *User) FindByCharacter(db postgres.QueryRowxer, characterID uint) error {
 	err := db.QueryRowx(`
 		WITH link AS (
