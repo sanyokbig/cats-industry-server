@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"io"
+
 	"github.com/go-errors/errors"
 )
 
@@ -48,49 +50,77 @@ func (auth *Authenticator) Run() {
 }
 
 // Create token using passed code, get owner info, create new character and user if needed
-func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Request) {
+func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Request) (err error) {
+
+	defer func() {
+		if err != nil {
+			log.Println(err)
+			respError(w, err)
+		} else {
+			w.Write([]byte("<script>window.close()</script>"))
+		}
+	}()
+
+	// Get query params
 	query := r.URL.Query()
 	state := query.Get("state")
 	code := query.Get("code")
 	if state == "" {
-		log.Println(ErrStateNotFoundInQuery)
-		w.Write([]byte("something went horribly wrong :(\n\n" + ErrStateNotFoundInQuery.Error()))
-
-		return
+		return ErrStateNotFoundInQuery
 	}
 	if code == "" {
-		log.Println(ErrCodeNotFoundInQuery)
-		w.Write([]byte("something went horribly wrong :(\n\n" + ErrCodeNotFoundInQuery.Error()))
-
-		return
+		return ErrCodeNotFoundInQuery
 	}
 
-	_, ok := auth.pending[state]
+	// Get ws client id
+	clientID, ok := auth.pending[state]
 	if !ok {
-		log.Println(ErrUnrecognizedState)
-		w.Write([]byte("something went horribly wrong :(\n\n" + ErrUnrecognizedState.Error()))
-
-		return
+		return ErrUnrecognizedState
 	}
 
 	// Create token
 	token, err := CreateToken(code)
 	if err != nil {
-		log.Println("failed to create token:", err)
+		return err
 	}
 
-	user, err := prepareUser(auth.db.DB, token)
+	// Get character owning token
+	character, err := prepareCharacter(auth.db.DB, token)
 	if err != nil {
-		log.Println(err)
-		w.Write([]byte("something went horribly wrong :(\n\n" + err.Error()))
-		return
+		return err
 	}
 
-	err = auth.comms.Sessions.Set(state, user.ID)
+	userID, err := auth.comms.Sessions.Get(state)
 	if err != nil {
-		w.Write([]byte("something went horribly wrong :(\n\n" + err.Error()))
+		return err
 	}
 
-	w.Write([]byte("<script>window.close()</script>"))
+	// If session have logged in user, add new character as an alt to user;
+	// login with character otherwise
+	if userID != 0 {
+		// Session have user, assign character as user alt
+		err = assignCharacterToUser(auth.db.DB, character, userID)
+		if err != nil {
+			return err
+		}
+	} else {
+		// Login with this character
+		err = loginWithCharacter(auth.db.DB, character)
+		if err != nil {
+			return err
+		}
+		err = auth.comms.Sessions.Set(state, userID)
+		if err != nil {
+			return err
+		}
+	}
 
+	// Send auth info to client via comms (?)
+	log.Println("login info sent to", clientID)
+
+	return nil
+}
+
+func respError(w io.Writer, err error) {
+	w.Write([]byte("something went horribly wrong :(\n\n" + err.Error()))
 }

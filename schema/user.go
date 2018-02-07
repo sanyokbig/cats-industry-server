@@ -35,6 +35,7 @@ func (u *User) Find(db sqlx.Queryer, userID uint) error {
 	return nil
 }
 
+// Returns user of passed character
 func (u *User) FindByCharacter(db sqlx.Queryer, characterID uint) error {
 	err := db.QueryRowx(`
 		WITH link AS (
@@ -49,6 +50,7 @@ func (u *User) FindByCharacter(db sqlx.Queryer, characterID uint) error {
 	return nil
 }
 
+// Returns user with owned characters joined
 func (u *User) FindWithCharacters(db sqlx.Queryer, userID uint) error {
 	err := u.Find(db, userID)
 	if err != nil {
