@@ -54,3 +54,17 @@ func (c *Character) Find(db postgres.QueryRowxer, characterID uint) error {
 
 	return nil
 }
+
+func (c *Character) FindByUser(db postgres.QueryRowxer, userID uint) error {
+	err := db.QueryRowx(`
+		WITH link AS (
+			SELECT character_id FROM users_characters WHERE user_id = $1
+		) SELECT * FROM characters WHERE id = (SELECT character_id FROM link)
+	`, userID).StructScan(c)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
