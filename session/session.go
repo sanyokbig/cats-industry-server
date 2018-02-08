@@ -12,7 +12,7 @@ import (
 )
 
 // Session must be deleted after this time
-var Lifetime = time.Duration(config.RedisConfig.TTLDays) * 24 * time.Hour // One week
+var Lifetime time.Duration
 
 type Sessions struct {
 	comms *comms.Comms
@@ -76,6 +76,7 @@ func (s *Sessions) Get(sessionID string) (userID uint, err error) {
 }
 
 func (s *Sessions) Run() {
+	Lifetime = time.Duration(config.RedisConfig.TTLDays) * 24 * time.Hour // One week
 	for {
 		select {}
 	}
