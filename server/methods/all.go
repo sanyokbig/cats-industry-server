@@ -15,8 +15,7 @@ type Client interface {
 }
 
 var all = map[string]Handler{
-	"login_request":   loginRequest,
-	"restore_session": restoreSession,
+	"login_request": loginRequest,
 }
 
 func Get(name string) Handler {
