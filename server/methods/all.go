@@ -10,12 +10,14 @@ type Handler func(c Client, req schema.Message) (resp *schema.Message, err error
 
 type Client interface {
 	GetID() string
+	GetSID() string
 	GetComms() *comms.Comms
 	GetPostgres() *postgres.Connection
 }
 
 var all = map[string]Handler{
-	"login_request": loginRequest,
+	"login_request":  loginRequest,
+	"logoff_request": logoffRequest,
 }
 
 func Get(name string) Handler {

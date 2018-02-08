@@ -196,6 +196,9 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 func (c *Client) GetID() string {
 	return c.id
 }
+func (c *Client) GetSID() string {
+	return c.sid
+}
 
 func (c *Client) GetComms() *comms.Comms {
 	return c.hub.comms
