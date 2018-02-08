@@ -17,9 +17,10 @@ var PostgresConfig struct {
 }
 
 var RedisConfig struct {
-	Uri  string `env:"REDIS_URI"`
-	DB   int    `env:"REDIS_DB"`
-	Pass string `env:"REDIS_PASS"`
+	Uri     string `env:"REDIS_URI"`
+	DB      int    `env:"REDIS_DB"`
+	Pass    string `env:"REDIS_PASS"`
+	TTLDays int    `env:"REDIS_TTL_DAYS"`
 }
 
 func Parse() {

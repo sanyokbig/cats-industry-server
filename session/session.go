@@ -1,16 +1,18 @@
 package session
 
 import (
-	"cats-industry-server/comms"
-
 	"strconv"
+	"time"
 
 	"github.com/go-redis/redis"
 	"github.com/satori/go.uuid"
+
+	"cats-industry-server/comms"
+	"cats-industry-server/config"
 )
 
 // Session must be deleted after this time
-const SessionLifetime int64 = 86400 * 7 // One week
+var Lifetime = time.Duration(config.RedisConfig.TTLDays) * 24 * time.Hour // One week
 
 type Sessions struct {
 	comms *comms.Comms
@@ -37,7 +39,7 @@ func (s *Sessions) New() (sessionID string, err error) {
 
 	// Store empty session
 	sessionID = newSessionID.String()
-	err = s.redis.Set(sessionID, 0, 0).Err()
+	err = s.redis.Set(sessionID, 0, Lifetime).Err()
 	if err != nil {
 		return "", err
 	}
@@ -47,7 +49,7 @@ func (s *Sessions) New() (sessionID string, err error) {
 
 // Assign user to session
 func (s *Sessions) Set(sessionID string, userID uint) (err error) {
-	return s.redis.Set(sessionID, userID, 0).Err()
+	return s.redis.Set(sessionID, userID, Lifetime).Err()
 }
 
 // Get user of session
@@ -57,6 +59,12 @@ func (s *Sessions) Get(sessionID string) (userID uint, err error) {
 		if err == redis.Nil {
 			return 0, nil
 		}
+		return 0, err
+	}
+
+	// Update ttl when key read
+	err = s.redis.Expire(sessionID, Lifetime).Err()
+	if err != nil {
 		return 0, err
 	}
 
