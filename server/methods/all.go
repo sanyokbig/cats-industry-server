@@ -16,7 +16,6 @@ type Client interface {
 
 var all = map[string]Handler{
 	"login_request":   loginRequest,
-	"get_sid":         getSid,
 	"restore_session": restoreSession,
 }
 

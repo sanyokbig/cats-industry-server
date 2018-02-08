@@ -52,8 +52,8 @@ type Client struct {
 
 	send chan []byte
 
-	id      string
-	session string
+	id  string
+	sid string
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -150,14 +150,32 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := uuid.Must(uuid.NewV4()).String()
-	session := r.URL.Query().Get("token")
+	sid := r.URL.Query().Get("sid")
+
+	var msg *schema.Message
+
+	log.Println("sid:", sid)
+
+	// If client provided no sessionID, generate it and send to client
+	if sid == "null" {
+		sid, err = hub.comms.Sessions.New()
+		if err != nil {
+			log.Print(err)
+			return
+		}
+
+		msg = &schema.Message{
+			Type:    "sid",
+			Payload: schema.Payload{"sid": sid},
+		}
+	}
 
 	client := &Client{
-		hub:     hub,
-		conn:    conn,
-		send:    make(chan []byte, 256),
-		id:      id,
-		session: session,
+		hub:  hub,
+		conn: conn,
+		send: make(chan []byte, 256),
+		id:   id,
+		sid:  sid,
 	}
 	client.hub.register <- client
 
@@ -165,6 +183,10 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
+
+	if msg != nil {
+		client.Respond(msg)
+	}
 }
 
 func (c *Client) GetID() string {

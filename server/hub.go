@@ -3,6 +3,7 @@ package server
 import (
 	"cats-industry-server/comms"
 	"cats-industry-server/postgres"
+	"log"
 
 	"cats-industry-server/schema"
 )
@@ -44,13 +45,13 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:
-			if h.sessions[client.session] == nil {
-				h.sessions[client.session] = map[*Client]bool{}
+			if h.sessions[client.sid] == nil {
+				h.sessions[client.sid] = map[*Client]bool{}
 			}
-			h.sessions[client.session][client] = true
+			h.sessions[client.sid][client] = true
 
 		case client := <-h.unregister:
-			session := h.sessions[client.session]
+			session := h.sessions[client.sid]
 			if session == nil {
 				continue
 			}
@@ -61,7 +62,7 @@ func (h *Hub) Run() {
 			}
 
 			if len(session) == 0 {
-				delete(h.sessions, client.session)
+				delete(h.sessions, client.sid)
 			}
 
 		case message := <-h.broadcast:
@@ -77,12 +78,12 @@ func (h *Hub) Run() {
 			}
 		}
 
-		//for k, v := range h.sessions {
-		//	log.Print(k)
-		//	for s := range v {
-		//		log.Print("	", s.id)
-		//	}
-		//}
+		for k, v := range h.sessions {
+			log.Print(k)
+			for s := range v {
+				log.Print("	", s.id)
+			}
+		}
 	}
 }
 
