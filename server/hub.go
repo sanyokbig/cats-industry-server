@@ -4,7 +4,7 @@ import (
 	"cats-industry-server/comms"
 	"cats-industry-server/postgres"
 
-	"github.com/satori/go.uuid"
+	"cats-industry-server/schema"
 )
 
 // hub maintains the set of active clients and broadcasts messages to the
@@ -12,8 +12,8 @@ import (
 type Hub struct {
 	comms    *comms.Comms
 	postgres *postgres.Connection
-	// Registered clients.
-	clients map[*Client]bool
+	// Sessions of registered clients.
+	sessions map[string]map[*Client]bool
 
 	// Inbound messages from the clients.
 	broadcast chan []byte
@@ -26,40 +26,70 @@ type Hub struct {
 }
 
 func NewHub(comms *comms.Comms, connection *postgres.Connection) *Hub {
-	return &Hub{
+	hub := &Hub{
 		comms:      comms,
 		postgres:   connection,
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		sessions:   make(map[string]map[*Client]bool),
 	}
+
+	comms.Hub = hub
+
+	return hub
 }
 
 func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.register:
-			client.id = uuid.Must(uuid.NewV4()).String()
-
-			h.clients[client] = true
+			if h.sessions[client.session] == nil {
+				h.sessions[client.session] = map[*Client]bool{}
+			}
+			h.sessions[client.session][client] = true
 
 		case client := <-h.unregister:
-			if _, ok := h.clients[client]; ok {
-				delete(h.clients, client)
+			session := h.sessions[client.session]
+			if session == nil {
+				continue
+			}
+
+			if _, ok := session[client]; ok {
+				delete(session, client)
 				close(client.send)
 			}
 
-		case message := <-h.broadcast:
-			for client := range h.clients {
-				select {
-				case client.send <- message:
-				default:
-					close(client.send)
-					delete(h.clients, client)
-				}
+			if len(session) == 0 {
+				delete(h.sessions, client.session)
 			}
 
+		case message := <-h.broadcast:
+			for _, session := range h.sessions {
+				for client := range session {
+					select {
+					case client.send <- message:
+					default:
+						close(client.send)
+						delete(session, client)
+					}
+				}
+			}
 		}
+
+		//for k, v := range h.sessions {
+		//	log.Print(k)
+		//	for s := range v {
+		//		log.Print("	", s.id)
+		//	}
+		//}
+	}
+}
+
+func (h *Hub) SendToSession(session string, message *schema.Message) {
+	clients := h.sessions[session]
+
+	for c := range clients {
+		c.Respond(message)
 	}
 }

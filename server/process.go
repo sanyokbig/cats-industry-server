@@ -1,10 +1,10 @@
 package server
 
 import (
-	"encoding/json"
-	"log"
 	"cats-industry-server/schema"
 	"cats-industry-server/server/methods"
+	"encoding/json"
+	"log"
 )
 
 // General processing of ws requests
@@ -34,6 +34,6 @@ func processRequest(c *Client, msg []byte) {
 	}
 
 	if toSend != nil {
-		c.Respond(*toSend)
+		c.Respond(toSend)
 	}
 }

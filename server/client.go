@@ -13,6 +13,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/satori/go.uuid"
 )
 
 const (
@@ -50,7 +52,8 @@ type Client struct {
 
 	send chan []byte
 
-	id string
+	id      string
+	session string
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -129,7 +132,7 @@ func (c *Client) writePump() {
 	}
 }
 
-func (c *Client) Respond(r schema.Message) {
+func (c *Client) Respond(r *schema.Message) {
 	resp, err := json.Marshal(r)
 	if err != nil {
 		log.Println(err)
@@ -146,7 +149,16 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	id := uuid.Must(uuid.NewV4()).String()
+	session := r.URL.Query().Get("token")
+
+	client := &Client{
+		hub:     hub,
+		conn:    conn,
+		send:    make(chan []byte, 256),
+		id:      id,
+		session: session,
+	}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
