@@ -3,8 +3,6 @@ package auth
 import (
 	"cats-industry-server/schema"
 
-	"log"
-
 	"github.com/jmoiron/sqlx"
 )
 
@@ -39,8 +37,6 @@ func assignCharacterToUser(db *sqlx.DB, character *schema.Character, userID uint
 		return err
 	}
 
-	log.Println("owner", ownerID, "user", userID)
-
 	// Character already owned by this user, nothing to do here
 	if ownerID == userID {
 		return nil
@@ -48,7 +44,10 @@ func assignCharacterToUser(db *sqlx.DB, character *schema.Character, userID uint
 
 	if ownerID == 0 {
 		// No owner, assigning as planned
-
+		err = character.UnsetMain(db)
+		if err != nil {
+			return err
+		}
 		err = character.AssignToUser(db, userID)
 		if err != nil {
 			return err

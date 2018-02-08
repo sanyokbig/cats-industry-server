@@ -110,3 +110,16 @@ func (c *Character) AssignToUser(db sqlx.Queryer, userID uint) (err error) {
 
 	return nil
 }
+
+func (c *Character) UnsetMain(db sqlx.Queryer) (err error) {
+	// Change links
+	rows, err := db.Queryx(`
+		UPDATE characters SET is_main = false WHERE id = $1
+	`, c.ID)
+	if err != nil {
+		return err
+	}
+	rows.Close()
+
+	return nil
+}
