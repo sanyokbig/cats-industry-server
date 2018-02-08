@@ -8,6 +8,8 @@ import (
 
 	"io"
 
+	"cats-industry-server/schema"
+
 	"github.com/go-errors/errors"
 )
 
@@ -90,6 +92,7 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
+	// Get current logged in user
 	userID, err := auth.comms.Sessions.Get(state)
 	if err != nil {
 		return err
@@ -105,7 +108,7 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		}
 	} else {
 		// Login with this character
-		err = loginWithCharacter(auth.db.DB, character)
+		userID, err = loginWithCharacter(auth.db.DB, character)
 		if err != nil {
 			return err
 		}
@@ -115,7 +118,21 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
+	// Get full user info
+	user := &schema.User{}
+	err = user.FindWithCharacters(auth.db, userID)
+	if err != nil {
+		return err
+	}
+
 	// Send auth info to client via comms (?)
+	auth.comms.Hub.SendToSession(state, &schema.Message{
+		Type: "auth",
+		Payload: schema.Payload{
+			"user": user,
+		},
+	})
+
 	log.Println("login info sent to", clientID)
 
 	return nil
