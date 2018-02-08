@@ -4,6 +4,7 @@ package comms
 type Comms struct {
 	Pending
 	Sessions
+	Hub
 }
 
 func New() *Comms {
