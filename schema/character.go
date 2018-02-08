@@ -2,8 +2,9 @@ package schema
 
 import (
 	"cats-industry-server/postgres"
-
 	"errors"
+
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -80,6 +81,32 @@ func (cl *CharactersList) FindByUser(db sqlx.Queryer, userID uint) error {
 		}
 		*cl = append(*cl, ch)
 	}
+
+	return nil
+}
+
+func (c *Character) GetOwnerID(db sqlx.Queryer) (userID uint, err error) {
+	err = db.QueryRowx(`
+		SELECT user_ID FROM users_characters WHERE character_id = $1
+	`, c.ID).Scan(&userID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, nil
+		}
+		return 0, err
+	}
+
+	return userID, nil
+}
+
+func (c *Character) AssignToUser(db sqlx.Queryer, userID uint) (err error) {
+	rows, err := db.Queryx(`
+		INSERT INTO users_characters (user_id, character_id) VALUES ($1, $2)
+	`, userID, c.ID)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
 
 	return nil
 }
