@@ -29,9 +29,10 @@ func createUserForCharacter(db *sqlx.DB, characterID uint) (user *schema.User, e
 		}
 	}()
 
+	user = &schema.User{}
 	err = user.Create(tx)
 	if err != nil {
-		err = errors.New("failed to create owner: " + err.Error())
+		err = errors.New("failed to create user: " + err.Error())
 		return
 	}
 
