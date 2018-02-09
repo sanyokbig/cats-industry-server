@@ -8,6 +8,8 @@ import (
 
 	"io"
 
+	"cats-industry-server/schema"
+
 	"github.com/go-errors/errors"
 )
 
@@ -47,6 +49,11 @@ func (auth *Authenticator) Run() {
 			}
 		}
 	}
+}
+
+type GhostCharacter struct {
+	*schema.Character
+	ghost bool
 }
 
 // Create token using passed code, get owner info, create new character and user if needed
@@ -97,6 +104,13 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
+	// Create character owning token
+	character, err := prepareCharacter(auth.db.DB, owner, userID)
+	if err != nil {
+		return err
+	}
+	// Character not saved, save later
+
 	// If session have logged in user, add new character as an alt to user;
 	// login with character otherwise
 	if userID != 0 {
@@ -106,11 +120,6 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 			return err
 		}
 
-		// Create character owning token
-		character, err := prepareCharacter(auth.db.DB, owner, userID)
-		if err != nil {
-			return err
-		}
 	} else {
 		// Session have no user. Login with this character
 		userID, err = loginWithCharacter(auth.db.DB, character)
