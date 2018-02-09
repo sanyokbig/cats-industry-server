@@ -4,12 +4,13 @@ import (
 	"cats-industry-server/schema"
 	"database/sql"
 
+	"cats-industry-server/postgres"
+
 	"github.com/go-errors/errors"
-	"github.com/jmoiron/sqlx"
 )
 
 // Looks for token owning character, creates if none exists and returns it
-func prepareCharacter(db *sqlx.DB, token *Token) (character *schema.Character, err error) {
+func prepareCharacter(db postgres.DB, token *Token) (character *schema.Character, err error) {
 	// Get owner using token
 	owner, err := token.GetOwner()
 	if err != nil {

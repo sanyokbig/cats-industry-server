@@ -34,6 +34,11 @@ func NewConnection(host, port, db, user, password string) *Connection {
 	return &Connection{DB: new(sqlx.DB), connStr: connStr}
 }
 
-type NamedQuerier interface {
+type NamedQueryer interface {
 	NamedQuery(query string, arg interface{}) (*sqlx.Rows, error)
+}
+
+type DB interface {
+	NamedQueryer
+	sqlx.Queryer
 }

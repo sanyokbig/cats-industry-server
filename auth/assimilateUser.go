@@ -26,10 +26,7 @@ func assimilateUser(db *sqlx.DB, sourceUser, targetUser uint) (err error) {
 
 	// Unset main flag on assimilating characters
 	rows, err := tx.Queryx(`
-		WITH linked as (
-			SELECT character_id FROM users_characters WHERE user_id = $1
-		)
-	  	UPDATE characters SET is_main=false WHERE id IN (SELECT character_id FROM linked)
+		UPDATE characters SET is_main=false WHERE user_id = $1
 	`, sourceUser)
 	if err != nil {
 		return err
@@ -38,7 +35,7 @@ func assimilateUser(db *sqlx.DB, sourceUser, targetUser uint) (err error) {
 
 	// Change links
 	rows, err = tx.Queryx(`
-		UPDATE users_characters SET user_id = $1 WHERE user_id = $2
+		UPDATE characters SET user_id = $1 WHERE user_id = $2
 	`, targetUser, sourceUser)
 	if err != nil {
 		return err
