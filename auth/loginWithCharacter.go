@@ -6,7 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func loginWithCharacter(db *sqlx.DB, character *schema.Character) (userID uint, err error) {
+func loginWithCharacter(db sqlx.Queryer, character *schema.Character) (userID uint, err error) {
 	// Prepare user
 	user, err := prepareUser(db, character.ID)
 	if err != nil {

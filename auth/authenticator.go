@@ -84,10 +84,11 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
-	// Get character owning token
-	character, err := prepareCharacter(auth.db.DB, token)
+	// Get owner using token
+	owner, err := token.GetOwner()
 	if err != nil {
-		return err
+		err = errors.New("failed to get owner: " + err.Error())
+		return
 	}
 
 	// Get current logged in user
@@ -104,8 +105,14 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		if err != nil {
 			return err
 		}
+
+		// Create character owning token
+		character, err := prepareCharacter(auth.db.DB, owner, userID)
+		if err != nil {
+			return err
+		}
 	} else {
-		// Login with this character
+		// Session have no user. Login with this character
 		userID, err = loginWithCharacter(auth.db.DB, character)
 		if err != nil {
 			return err
@@ -116,7 +123,7 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	err = notifyClientAboutAuth(state, userID, auth.db, auth.comms.Hub)
+	err = notifyClientAboutAuth(auth.db, state, userID, auth.comms.Hub)
 	if err != nil {
 		return err
 	}

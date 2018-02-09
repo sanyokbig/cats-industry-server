@@ -10,7 +10,7 @@ import (
 )
 
 // Get user of character or create new one and link with character
-func prepareUser(db *sqlx.DB, characterID uint) (user *schema.User, err error) {
+func prepareUser(db sqlx.Queryer, characterID uint) (user *schema.User, err error) {
 	// Find user of character
 	user = &schema.User{}
 	err = user.FindByCharacter(db, characterID)
