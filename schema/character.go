@@ -92,7 +92,7 @@ func (c *Character) GetOwnerID(db sqlx.Queryer) (userID uint, err error) {
 
 func (c *Character) AssignToUser(db sqlx.Queryer, userID uint) (err error) {
 	rows, err := db.Queryx(`
-		UPDATE users_characters SET user_id = $1 WHERE character_id = $2
+		INSERT INTO users_characters (user_id, character_id) VALUES ($1, $2)
 	`, userID, c.ID)
 	if err != nil {
 		return
