@@ -96,8 +96,21 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
+	tx, err := auth.db.Beginx()
+	if err != nil {
+		return errors.New("failed to begin tx: " + err.Error())
+	}
+	defer func() {
+		if err != nil {
+			rbErr := tx.Rollback()
+			log.Println("failed to rollback:", rbErr)
+			return
+		}
+		err = tx.Commit()
+	}()
+
 	// Create character owning token
-	character, err := prepareCharacter(auth.db.DB, owner, userID)
+	character, err := prepareCharacter(tx, owner, userID)
 	if err != nil {
 		return err
 	}
@@ -106,14 +119,14 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 	// login with character otherwise
 	if userID != 0 {
 		// Session have user, assign character as user alt
-		err = assignCharacterToUser(auth.db.DB, character, userID)
+		err = assignCharacterToUser(tx, character, userID)
 		if err != nil {
 			return err
 		}
 
 	} else {
 		// Session have no user. Login with this character
-		userID, err = loginWithCharacter(auth.db.DB, character)
+		userID, err = loginWithCharacter(tx, character)
 		if err != nil {
 			return err
 		}
@@ -123,7 +136,7 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	err = notifyClientAboutAuth(auth.db, state, userID, auth.comms.Hub)
+	err = notifyClientAboutAuth(tx, state, userID, auth.comms.Hub)
 	if err != nil {
 		return err
 	}
