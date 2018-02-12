@@ -12,7 +12,7 @@ import (
 
 // Creates new token using authorization code
 func CreateToken(code string) (token *schema.Token, err error) {
-	token = &schema.Token{Id: 1}
+	token = &schema.Token{}
 	c := &http.Client{}
 	url := fmt.Sprintf("https://login.eveonline.com/oauth/token?grant_type=authorization_code&code=%v", code)
 	req, err := http.NewRequest("POST", url, nil)

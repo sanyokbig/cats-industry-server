@@ -36,10 +36,10 @@ func easyjsonCef4e921DecodeCatsIndustryServerSchema(in *jlexer.Lexer, out *Token
 			continue
 		}
 		switch key {
-		case "Id":
-			out.Id = uint(in.Uint())
-		case "UserId":
-			out.UserId = uint(in.Uint())
+		case "ID":
+			out.ID = uint(in.Uint())
+		case "CharacterID":
+			out.CharacterID = uint(in.Uint())
 		case "ExpiresAt":
 			out.ExpiresAt = int64(in.Int64())
 		case "type":
@@ -65,24 +65,24 @@ func easyjsonCef4e921EncodeCatsIndustryServerSchema(out *jwriter.Writer, in Toke
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"Id\":"
+		const prefix string = ",\"ID\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
 		} else {
 			out.RawString(prefix)
 		}
-		out.Uint(uint(in.Id))
+		out.Uint(uint(in.ID))
 	}
 	{
-		const prefix string = ",\"UserId\":"
+		const prefix string = ",\"CharacterID\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
 		} else {
 			out.RawString(prefix)
 		}
-		out.Uint(uint(in.UserId))
+		out.Uint(uint(in.CharacterID))
 	}
 	{
 		const prefix string = ",\"ExpiresAt\":"

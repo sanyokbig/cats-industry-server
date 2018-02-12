@@ -10,15 +10,18 @@ import (
 	"log"
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"cats-industry-server/postgres"
+
+	"github.com/go-errors/errors"
 )
 
 //easyjson:json
 type Token struct {
-	Id           uint `db:"id"`
-	UserId       uint
+	ID           uint   `db:"id"`
+	CharacterID  uint   `db:"character_id"`
 	ExpiresAt    int64  `db:"expires_at"`
-	Type         string `json:"type" db:"type"`
+	Type         string `db:"type"`
+	Scopes       string `db:"scopes"`
 	ExpiresIn    int    `json:"expires_in"`
 	AccessToken  string `json:"access_token" db:"access_token"`
 	RefreshToken string `json:"refresh_token" db:"refresh_token"`
@@ -65,7 +68,7 @@ func (t *Token) Refresh() error {
 	return nil
 }
 
-// Gets token owner
+// Gets token owner, updates token information and returns Owner
 func (t *Token) GetOwner() (*Owner, error) {
 	c := &http.Client{}
 	url := fmt.Sprintf("https://login.eveonline.com/oauth/verify")
@@ -94,6 +97,10 @@ func (t *Token) GetOwner() (*Owner, error) {
 		return nil, err
 	}
 
+	// Update token fields from received owner
+	t.CharacterID = o.CharacterID
+	t.Scopes = o.Scopes
+
 	return &o, nil
 }
 
@@ -103,11 +110,29 @@ func (t Token) IsExpired() bool {
 }
 
 // Saves token to postgres and updates id in struct
-func (t *Token) Save(db *sqlx.DB) error {
-	rows, err := db.NamedQuery(`INSERT INTO tokens (expires_at, access_token, refresh_token, type) VALUES (:expires_at, :access_token, :refresh_token, :type)`, t)
+func (t *Token) Save(db postgres.NamedQueryer) error {
+	rows, err := db.NamedQuery(`
+		INSERT INTO tokens 
+			(character_id, expires_at, access_token, refresh_token, scopes) 
+		VALUES 
+			(:character_id, :expires_at, :access_token, :refresh_token, :scopes) 
+		ON CONFLICT (character_id, scopes) DO UPDATE 
+			SET (expires_at, access_token, refresh_token) = (:expires_at, :access_token, :refresh_token) 
+		RETURNING id`,
+		t,
+	)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
+
+	if !rows.Next() {
+		return errors.New("token create: rows.Scan() failed")
+	}
+	err = rows.StructScan(t)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -115,6 +115,12 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
+	// Save token to database
+	err = token.Save(tx)
+	if err != nil {
+		return err
+	}
+
 	// If session have logged in user, add new character as an alt to user;
 	// login with character otherwise
 	if userID != 0 {
