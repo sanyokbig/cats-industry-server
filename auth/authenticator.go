@@ -51,7 +51,6 @@ func (auth *Authenticator) Run() {
 
 // Create token using passed code, get owner info, create new character and user if needed
 func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Request) (err error) {
-
 	defer func() {
 		if err != nil {
 			log.Println(err)
