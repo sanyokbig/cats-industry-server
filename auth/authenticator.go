@@ -101,7 +101,6 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		return err
 	}
-	// Character not saved, save later
 
 	// If session have logged in user, add new character as an alt to user;
 	// login with character otherwise

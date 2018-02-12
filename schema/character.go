@@ -2,7 +2,6 @@ package schema
 
 import (
 	"cats-industry-server/postgres"
-	"errors"
 
 	"database/sql"
 
@@ -12,7 +11,6 @@ import (
 //easyjson:json
 type Character struct {
 	ID     uint    `json:"id" db:"id"`
-	UserID uint    `json:"-" db:"user_id"`
 	Name   string  `json:"name" db:"name"`
 	IsMain bool    `json:"is_main" db:"is_main"`
 	Skills []Skill `json:"-"`
@@ -38,10 +36,6 @@ func (c *Character) Create(db postgres.NamedQueryer) error {
 		return err
 	}
 	defer rows.Close()
-
-	if !rows.Next() {
-		return errors.New("rows.Next failed, could not retrieve id")
-	}
 
 	return nil
 }
