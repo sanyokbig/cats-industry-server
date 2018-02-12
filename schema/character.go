@@ -32,7 +32,7 @@ type Skill struct {
 // Create new character and insert fresh id in struct
 func (c *Character) Create(db postgres.NamedQueryer) error {
 	rows, err := db.NamedQuery(`
-		INSERT INTO characters (id, name, is_main, user_id) VALUES (:id, :name, :is_main, :user_id)
+		INSERT INTO characters (id, name, is_main) VALUES (:id, :name, :is_main)
 	`, c)
 	if err != nil {
 		return err
@@ -60,7 +60,10 @@ func (c *Character) Find(db sqlx.Queryer, characterID uint) error {
 
 func (cl *CharactersList) FindByUser(db sqlx.Queryer, userID uint) error {
 	rows, err := db.Queryx(`
-		SELECT * FROM characters WHERE user_id = $1
+		WITH links as (
+			SELECT character_id FROM users_characters WHERE user_id = $1
+		)
+		SELECT * FROM characters WHERE id in (SELECT character_id FROM links)
 	`, userID)
 	if err != nil {
 		return err
@@ -81,7 +84,7 @@ func (cl *CharactersList) FindByUser(db sqlx.Queryer, userID uint) error {
 
 func (c *Character) GetOwnerID(db sqlx.Queryer) (userID uint, err error) {
 	err = db.QueryRowx(`
-		SELECT user_id FROM characters WHERE id = $1
+		SELECT user_id FROM users_characters WHERE character_id = $1
 	`, c.ID).Scan(&userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -95,7 +98,7 @@ func (c *Character) GetOwnerID(db sqlx.Queryer) (userID uint, err error) {
 
 func (c *Character) AssignToUser(db sqlx.Queryer, userID uint) (err error) {
 	rows, err := db.Queryx(`
-		UPDATE characters SET user_id = $1 WHERE id = $2
+		UPDATE users_characters SET user_id = $1 WHERE character_id = $2
 	`, userID, c.ID)
 	if err != nil {
 		return
