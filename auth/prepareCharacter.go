@@ -9,15 +9,8 @@ import (
 	"github.com/go-errors/errors"
 )
 
-// Looks for token owning character, creates if none exists and returns it
-func prepareCharacter(db postgres.DB, token *Token) (character *schema.Character, err error) {
-	// Get owner using token
-	owner, err := token.GetOwner()
-	if err != nil {
-		err = errors.New("failed to get owner: " + err.Error())
-		return
-	}
-
+// Looks for token-owning character, creates if none exists and returns it
+func prepareCharacter(db postgres.DB, owner *schema.Owner, userID uint) (character *schema.Character, err error) {
 	// Find existing character
 	character = &schema.Character{}
 	err = character.Find(db, owner.CharacterID)
@@ -28,7 +21,7 @@ func prepareCharacter(db postgres.DB, token *Token) (character *schema.Character
 		return
 	}
 
-	// If character not found, create new one
+	// If character not found, create ghost one
 	if err == sql.ErrNoRows {
 		character = &schema.Character{
 			ID:     owner.CharacterID,
@@ -37,10 +30,8 @@ func prepareCharacter(db postgres.DB, token *Token) (character *schema.Character
 		}
 
 		err = character.Create(db)
-
 		if err != nil {
-			err = errors.New("failed to create character: " + err.Error())
-			return
+			return nil, err
 		}
 	}
 

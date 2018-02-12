@@ -2,7 +2,6 @@ package schema
 
 import (
 	"cats-industry-server/postgres"
-	"errors"
 
 	"database/sql"
 
@@ -12,7 +11,6 @@ import (
 //easyjson:json
 type Character struct {
 	ID     uint    `json:"id" db:"id"`
-	UserID uint    `json:"-" db:"user_id"`
 	Name   string  `json:"name" db:"name"`
 	IsMain bool    `json:"is_main" db:"is_main"`
 	Skills []Skill `json:"-"`
@@ -32,16 +30,12 @@ type Skill struct {
 // Create new character and insert fresh id in struct
 func (c *Character) Create(db postgres.NamedQueryer) error {
 	rows, err := db.NamedQuery(`
-		INSERT INTO characters (id, name, is_main, user_id) VALUES (:id, :name, :is_main, :user_id)
+		INSERT INTO characters (id, name, is_main) VALUES (:id, :name, :is_main)
 	`, c)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
-
-	if !rows.Next() {
-		return errors.New("rows.Next failed, could not retrieve id")
-	}
 
 	return nil
 }
@@ -60,7 +54,10 @@ func (c *Character) Find(db sqlx.Queryer, characterID uint) error {
 
 func (cl *CharactersList) FindByUser(db sqlx.Queryer, userID uint) error {
 	rows, err := db.Queryx(`
-		SELECT * FROM characters WHERE user_id = $1
+		WITH links as (
+			SELECT character_id FROM users_characters WHERE user_id = $1
+		)
+		SELECT * FROM characters WHERE id in (SELECT character_id FROM links)
 	`, userID)
 	if err != nil {
 		return err
@@ -81,7 +78,7 @@ func (cl *CharactersList) FindByUser(db sqlx.Queryer, userID uint) error {
 
 func (c *Character) GetOwnerID(db sqlx.Queryer) (userID uint, err error) {
 	err = db.QueryRowx(`
-		SELECT user_id FROM characters WHERE id = $1
+		SELECT user_id FROM users_characters WHERE character_id = $1
 	`, c.ID).Scan(&userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -95,7 +92,7 @@ func (c *Character) GetOwnerID(db sqlx.Queryer) (userID uint, err error) {
 
 func (c *Character) AssignToUser(db sqlx.Queryer, userID uint) (err error) {
 	rows, err := db.Queryx(`
-		UPDATE characters SET user_id = $1 WHERE id = $2
+		INSERT INTO users_characters (user_id, character_id) VALUES ($1, $2)
 	`, userID, c.ID)
 	if err != nil {
 		return

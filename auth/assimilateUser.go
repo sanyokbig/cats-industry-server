@@ -1,32 +1,39 @@
 package auth
 
 import (
-	"log"
-
-	"github.com/jmoiron/sqlx"
+	"cats-industry-server/postgres"
 )
 
 // Rebind all characters from source user to target user and delete former
-func assimilateUser(db *sqlx.DB, sourceUser, targetUser uint) (err error) {
-	tx, err := db.Beginx()
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if err != nil {
-			log.Println("tx rollback")
-			rbErr := tx.Rollback()
-			if rbErr != nil {
-				log.Println("rollback failed:", rbErr)
-			}
-			return
-		}
-		err = tx.Commit()
-	}()
 
+/*
+Example:
+
+Starting users
+	User1:
+		Alexander
+		Elsa
+	User2:
+		Ansgar
+		Fergus
+
+If active session is of User1 and next login done as Fergus, User2 is detected, all its users retrieved and assigned to User2, resulting in:
+
+	User1:
+		Alexander
+		Elsa
+		Ansgar
+		Fergus
+
+*/
+
+func assimilateUser(db postgres.DB, sourceUser, targetUser uint) (err error) {
 	// Unset main flag on assimilating characters
-	rows, err := tx.Queryx(`
-		UPDATE characters SET is_main=false WHERE user_id = $1
+	rows, err := db.Queryx(`
+		WITH links as (
+			SELECT character_id FROM users_characters WHERE user_id = $1
+		)
+		UPDATE characters SET is_main = false WHERE id IN (SELECT * FROM links)
 	`, sourceUser)
 	if err != nil {
 		return err
@@ -34,8 +41,8 @@ func assimilateUser(db *sqlx.DB, sourceUser, targetUser uint) (err error) {
 	rows.Close()
 
 	// Change links
-	rows, err = tx.Queryx(`
-		UPDATE characters SET user_id = $1 WHERE user_id = $2
+	rows, err = db.Queryx(`
+		UPDATE users_characters SET user_id = $1 WHERE user_id = $2
 	`, targetUser, sourceUser)
 	if err != nil {
 		return err
@@ -43,7 +50,7 @@ func assimilateUser(db *sqlx.DB, sourceUser, targetUser uint) (err error) {
 	rows.Close()
 
 	// Delete user
-	rows, err = tx.Queryx(`
+	rows, err = db.Queryx(`
 		DELETE FROM users WHERE id = $1
 	`, sourceUser)
 	if err != nil {

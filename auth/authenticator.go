@@ -51,7 +51,6 @@ func (auth *Authenticator) Run() {
 
 // Create token using passed code, get owner info, create new character and user if needed
 func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Request) (err error) {
-
 	defer func() {
 		if err != nil {
 			log.Println(err)
@@ -84,10 +83,11 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
-	// Get character owning token
-	character, err := prepareCharacter(auth.db.DB, token)
+	// Get owner using token
+	owner, err := token.GetOwner()
 	if err != nil {
-		return err
+		err = errors.New("failed to get owner: " + err.Error())
+		return
 	}
 
 	// Get current logged in user
@@ -96,17 +96,37 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
+	tx, err := auth.db.Beginx()
+	if err != nil {
+		return errors.New("failed to begin tx: " + err.Error())
+	}
+	defer func() {
+		if err != nil {
+			rbErr := tx.Rollback()
+			log.Println("failed to rollback:", rbErr)
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	// Create character owning token
+	character, err := prepareCharacter(tx, owner, userID)
+	if err != nil {
+		return err
+	}
+
 	// If session have logged in user, add new character as an alt to user;
 	// login with character otherwise
 	if userID != 0 {
 		// Session have user, assign character as user alt
-		err = assignCharacterToUser(auth.db.DB, character, userID)
+		err = assignCharacterToUser(tx, character, userID)
 		if err != nil {
 			return err
 		}
+
 	} else {
-		// Login with this character
-		userID, err = loginWithCharacter(auth.db.DB, character)
+		// Session have no user. Login with this character
+		userID, err = loginWithCharacter(tx, character)
 		if err != nil {
 			return err
 		}
@@ -116,7 +136,7 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	err = notifyClientAboutAuth(state, userID, auth.db, auth.comms.Hub)
+	err = notifyClientAboutAuth(tx, state, userID, auth.comms.Hub)
 	if err != nil {
 		return err
 	}

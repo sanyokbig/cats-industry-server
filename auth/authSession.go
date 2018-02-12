@@ -10,7 +10,7 @@ type sessionSender interface {
 	SendToSession(session string, message *schema.Message)
 }
 
-func notifyClientAboutAuth(sid string, userID uint, db sqlx.Queryer, sender sessionSender) error {
+func notifyClientAboutAuth(db sqlx.Queryer, sid string, userID uint, sender sessionSender) error {
 	// Get full user info
 	user := &schema.User{}
 

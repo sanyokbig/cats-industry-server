@@ -39,7 +39,7 @@ func (u *User) Find(db sqlx.Queryer, userID uint) error {
 func (u *User) FindByCharacter(db sqlx.Queryer, characterID uint) error {
 	err := db.QueryRowx(`
 		WITH link AS (
-			SELECT user_id FROM characters WHERE id = $1
+			SELECT user_id FROM users_characters WHERE character_id = $1
 		) SELECT * FROM users WHERE id = (SELECT user_id FROM link)
 	`, characterID).StructScan(u)
 
@@ -68,7 +68,7 @@ func (u *User) FindWithCharacters(db sqlx.Queryer, userID uint) error {
 
 func (u *User) LinkWithCharacter(db sqlx.Queryer, characterID uint) (err error) {
 	rows, err := db.Queryx(`
-		UPDATE characters SET user_id = $1 WHERE id = $2
+		INSERT INTO users_characters (user_id, character_id) VALUES ($1, $2)
 	`, u.ID, characterID)
 	if err != nil {
 		return
