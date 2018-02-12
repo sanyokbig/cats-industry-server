@@ -68,7 +68,7 @@ func (u *User) FindWithCharacters(db sqlx.Queryer, userID uint) error {
 
 func (u *User) LinkWithCharacter(db sqlx.Queryer, characterID uint) (err error) {
 	rows, err := db.Queryx(`
-		UPDATE users_characters SET user_id = $1 WHERE character_id = $2
+		INSERT INTO users_characters (user_id, character_id) VALUES ($1, $2)
 	`, u.ID, characterID)
 	if err != nil {
 		return
