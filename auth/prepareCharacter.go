@@ -29,6 +29,11 @@ func prepareCharacter(db postgres.DB, owner *schema.Owner, userID uint) (charact
 			IsMain: true,
 			UserID: userID,
 		}
+
+		err = character.Create(db)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return character, nil
