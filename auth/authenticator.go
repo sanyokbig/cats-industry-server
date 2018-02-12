@@ -8,8 +8,6 @@ import (
 
 	"io"
 
-	"cats-industry-server/schema"
-
 	"github.com/go-errors/errors"
 )
 
@@ -49,11 +47,6 @@ func (auth *Authenticator) Run() {
 			}
 		}
 	}
-}
-
-type GhostCharacter struct {
-	*schema.Character
-	ghost bool
 }
 
 // Create token using passed code, get owner info, create new character and user if needed

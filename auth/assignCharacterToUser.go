@@ -2,6 +2,7 @@ package auth
 
 import (
 	"cats-industry-server/postgres"
+	"cats-industry-server/schema"
 )
 
 /*
@@ -9,7 +10,7 @@ import (
 Assigns character to user
 If character is owned by another user, assimilate old user with new
 */
-func assignCharacterToUser(db postgres.DB, character *GhostCharacter, userID uint) (err error) {
+func assignCharacterToUser(db postgres.DB, character *schema.Character, userID uint) (err error) {
 	// Get character owner
 	ownerID, err := character.GetOwnerID(db)
 	if err != nil {

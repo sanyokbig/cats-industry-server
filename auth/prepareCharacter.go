@@ -10,9 +10,9 @@ import (
 )
 
 // Looks for token-owning character, creates if none exists and returns it
-func prepareCharacter(db postgres.DB, owner *schema.Owner, userID uint) (character *GhostCharacter, err error) {
+func prepareCharacter(db postgres.DB, owner *schema.Owner, userID uint) (character *schema.Character, err error) {
 	// Find existing character
-	character = &GhostCharacter{}
+	character = &schema.Character{}
 	err = character.Find(db, owner.CharacterID)
 
 	// Unexpected error
@@ -23,14 +23,11 @@ func prepareCharacter(db postgres.DB, owner *schema.Owner, userID uint) (charact
 
 	// If character not found, create ghost one
 	if err == sql.ErrNoRows {
-		character = &GhostCharacter{
-			Character: &schema.Character{
-				ID:     owner.CharacterID,
-				Name:   owner.CharacterName,
-				IsMain: true,
-				UserID: userID,
-			},
-			ghost: true,
+		character = &schema.Character{
+			ID:     owner.CharacterID,
+			Name:   owner.CharacterName,
+			IsMain: true,
+			UserID: userID,
 		}
 	}
 
