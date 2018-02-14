@@ -1,9 +1,9 @@
 package main
 
 import (
-	"cats-industry-server/config"
-	"cats-industry-server/postgres"
-	"cats-industry-server/server"
+	"github.com/sanyokbig/cats-industry-server/config"
+	"github.com/sanyokbig/cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/server"
 
 	"github.com/go-redis/redis"
 )

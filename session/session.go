@@ -7,8 +7,8 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/satori/go.uuid"
 
-	"cats-industry-server/comms"
-	"cats-industry-server/config"
+	"github.com/sanyokbig/cats-industry-server/comms"
+	"github.com/sanyokbig/cats-industry-server/config"
 )
 
 // Session must be deleted after this time

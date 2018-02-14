@@ -1,7 +1,7 @@
 package server
 
 import (
-	"cats-industry-server/schema"
+	"github.com/sanyokbig/cats-industry-server/schema"
 	"database/sql"
 )
 

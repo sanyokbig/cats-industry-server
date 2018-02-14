@@ -1,10 +1,10 @@
 package server
 
 import (
-	"cats-industry-server/auth"
-	"cats-industry-server/comms"
-	"cats-industry-server/postgres"
-	"cats-industry-server/session"
+	"github.com/sanyokbig/cats-industry-server/auth"
+	"github.com/sanyokbig/cats-industry-server/comms"
+	"github.com/sanyokbig/cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/session"
 	"log"
 	"net/http"
 

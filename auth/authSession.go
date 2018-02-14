@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"cats-industry-server/schema"
+	"github.com/sanyokbig/cats-industry-server/schema"
 
 	"github.com/jmoiron/sqlx"
 )

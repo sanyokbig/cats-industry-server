@@ -1,8 +1,8 @@
 package server
 
 import (
-	"cats-industry-server/schema"
-	"cats-industry-server/server/methods"
+	"github.com/sanyokbig/cats-industry-server/schema"
+	"github.com/sanyokbig/cats-industry-server/server/methods"
 	"encoding/json"
 	"log"
 )

@@ -1,16 +1,16 @@
 package auth
 
 import (
-	"cats-industry-server/schema"
+	"github.com/sanyokbig/cats-industry-server/schema"
 	"database/sql"
 
-	"cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/postgres"
 
 	"github.com/go-errors/errors"
 )
 
 // Looks for token-owning character, creates if none exists and returns it
-func prepareCharacter(db postgres.DB, owner *schema.Owner, userID uint) (character *schema.Character, err error) {
+func prepareCharacter(db postgres.DB, owner *schema.Owner) (character *schema.Character, err error) {
 	// Find existing character
 	character = &schema.Character{}
 	err = character.Find(db, owner.CharacterID)

@@ -1,11 +1,11 @@
 package server
 
 import (
-	"cats-industry-server/comms"
-	"cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/comms"
+	"github.com/sanyokbig/cats-industry-server/postgres"
 	"log"
 
-	"cats-industry-server/schema"
+	"github.com/sanyokbig/cats-industry-server/schema"
 )
 
 // hub maintains the set of active clients and broadcasts messages to the

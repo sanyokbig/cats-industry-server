@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/postgres"
 
 	"database/sql"
 

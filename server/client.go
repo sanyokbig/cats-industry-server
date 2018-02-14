@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"cats-industry-server/comms"
+	"github.com/sanyokbig/cats-industry-server/comms"
 
 	"github.com/gorilla/websocket"
 
-	"cats-industry-server/postgres"
-	"cats-industry-server/schema"
+	"github.com/sanyokbig/cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/schema"
 	"log"
 	"net/http"
 	"time"

@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/postgres"
 )
 
 // Rebind all characters from source user to target user and delete former

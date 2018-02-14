@@ -6,11 +6,11 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"cats-industry-server/config"
+	"github.com/sanyokbig/cats-industry-server/config"
 	"log"
 	"time"
 
-	"cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/postgres"
 
 	"github.com/go-errors/errors"
 )

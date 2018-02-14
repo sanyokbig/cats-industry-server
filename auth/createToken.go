@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"cats-industry-server/config"
-	"cats-industry-server/schema"
+	"github.com/sanyokbig/cats-industry-server/config"
+	"github.com/sanyokbig/cats-industry-server/schema"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"

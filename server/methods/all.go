@@ -1,9 +1,9 @@
 package methods
 
 import (
-	"cats-industry-server/comms"
-	"cats-industry-server/postgres"
-	"cats-industry-server/schema"
+	"github.com/sanyokbig/cats-industry-server/comms"
+	"github.com/sanyokbig/cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/schema"
 )
 
 type Handler func(c Client, req schema.Message) (resp *schema.Message, err error)

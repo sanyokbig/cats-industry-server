@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"cats-industry-server/postgres"
-	"cats-industry-server/schema"
+	"github.com/sanyokbig/cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/schema"
 )
 
 /*

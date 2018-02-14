@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"cats-industry-server/comms"
-	"cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/comms"
+	"github.com/sanyokbig/cats-industry-server/postgres"
 	"log"
 	"net/http"
 
@@ -110,7 +110,7 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 	}()
 
 	// Create character owning token
-	character, err := prepareCharacter(tx, owner, userID)
+	character, err := prepareCharacter(tx, owner)
 	if err != nil {
 		return err
 	}
