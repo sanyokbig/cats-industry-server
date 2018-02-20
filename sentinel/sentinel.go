@@ -31,15 +31,30 @@ func NewSentinel(comms *comms.Comms, redis *redis.Client, postgres *postgres.Con
 func (s *Sentinel) Check(userID uint, role string) bool {
 	key := strconv.Itoa(int(userID))
 
+	// First check if key exists. If not, generate roles cache
+	exists, err := s.redis.Exists(key).Result()
+	if err != nil {
+		log.Println("failed exist check:",err)
+		return false
+	}
+	if exists == 0 {
+		err = s.WarmUserRoles(userID)
+		if err != nil {
+			log.Println("failed to warm roles",err)
+			return false
+		}
+	}
+
+	// Check itself
 	roles, err := s.redis.SMembersMap(key).Result()
 	if err != nil {
 		log.Println("check failed:", err)
 		return false
 	}
-
 	log.Println(roles)
 
-	return false
+	_, ok := roles[role]
+	return ok
 }
 
 // Add roles to existing ones
@@ -53,7 +68,7 @@ func (s *Sentinel) RemoveRoles(userID uint, roles []string) error {
 }
 
 // Set passed roles to user regardless of previous ones
-func (s *Sentinel) SetRoles(userID uint, roles []string) error {
+func (s *Sentinel) SetRoles(userID uint, roles *[]string) error {
 	key := strconv.Itoa(int(userID))
 	// Drop current roles
 	if err := s.redis.Del(key).Err(); err != nil {
@@ -61,8 +76,15 @@ func (s *Sentinel) SetRoles(userID uint, roles []string) error {
 	}
 
 	// Add new ones
-	if err := s.redis.SAdd(key, roles).Err(); err != nil {
-		return err
+	rs := []interface{}{}
+	for _, r := range *roles {
+		rs = append(rs, r)
+	}
+
+	if len(rs) != 0 {
+		if err := s.redis.SAdd(key, rs...).Err(); err != nil {
+			return err
+		}
 	}
 
 	// Set ttl
@@ -74,12 +96,14 @@ func (s *Sentinel) SetRoles(userID uint, roles []string) error {
 }
 
 // Get users roles from postgres and create entry in redis
-func (s *Sentinel) PrepareUser(userID uint) error {
+func (s *Sentinel) WarmUserRoles(userID uint) error {
 	roles, err := schema.User{ID: userID}.GetRoles(s.postgres)
-	if err!= nil {
+	if err != nil {
 		return err
 	}
-	log.Println(roles)
-
+	err = s.SetRoles(userID, roles)
+	if err != nil {
+		return err
+	}
 	return nil
 }
