@@ -6,8 +6,8 @@ import (
 )
 
 // Sends client auth info including user with its characters
-func restoreSession(sid string, hub *Hub) (resp *schema.Message, err error) {
-	resp = &schema.Message{
+func restoreSession(sid string, hub *Hub) (msg *schema.Message, err error) {
+	msg = &schema.Message{
 		Type:    "auth",
 		Payload: schema.Payload{},
 	}
@@ -24,7 +24,7 @@ func restoreSession(sid string, hub *Hub) (resp *schema.Message, err error) {
 		// Unexpected error
 		return nil, err
 	}
-	resp.Payload["user"] = user
+	msg.Payload["user"] = user
 	if err == sql.ErrNoRows {
 		// Session bound to not existing user, reset session user
 		err = hub.comms.Sessions.Set(sid, 0)
@@ -32,8 +32,8 @@ func restoreSession(sid string, hub *Hub) (resp *schema.Message, err error) {
 			return nil, err
 		}
 
-		resp.Payload["user"] = nil
+		msg.Payload["user"] = nil
 	}
 
-	return resp, nil
+	return msg, nil
 }

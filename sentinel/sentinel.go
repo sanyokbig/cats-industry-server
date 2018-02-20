@@ -71,7 +71,6 @@ func (s *Sentinel) SetRoles(userID uint, roles []string) error {
 	}
 
 	return nil
-
 }
 
 // Get users roles from postgres and create entry in redis

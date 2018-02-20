@@ -156,15 +156,10 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 
 	// If client provided no sessionID, generate it and send to client
 	if sid == "null" {
-		sid, err = hub.comms.Sessions.New()
+		msg, err = prepareSession(hub)
 		if err != nil {
 			log.Print(err)
 			return
-		}
-
-		msg = &schema.Message{
-			Type:    "sid",
-			Payload: schema.Payload{"sid": sid},
 		}
 	} else {
 		// If sid provided, there is chance that session have logged in user, try to restore it
@@ -190,7 +185,6 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.readPump()
 
 	client.Respond(msg)
-
 }
 
 func (c *Client) GetID() string {
