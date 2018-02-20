@@ -156,7 +156,7 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 
 	// If client provided no sessionID, generate it and send to client
 	if sid == "null" {
-		msg, err = prepareSession(hub)
+		msg, sid, err = prepareSession(hub)
 		if err != nil {
 			log.Print(err)
 			return
