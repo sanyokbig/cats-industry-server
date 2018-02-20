@@ -36,7 +36,6 @@ func (s *Server) Run(port string) {
 
 	go hub.Run()
 	go authenticator.Run()
-	go sessions.Run()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		ServeWs(hub, w, r)

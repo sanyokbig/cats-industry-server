@@ -71,9 +71,3 @@ func (s *Sessions) Get(sessionID string) (userID uint, err error) {
 	}
 	return uint(userIDint), nil
 }
-
-func (s *Sessions) Run() {
-	for {
-		select {}
-	}
-}
