@@ -20,6 +20,7 @@ type Sessions struct {
 }
 
 func New(comms *comms.Comms, client *redis.Client) *Sessions {
+	Lifetime = time.Duration(config.RedisConfig.TTLDays) * 24 * time.Hour // One week
 	return &Sessions{
 		comms: comms,
 		redis: client,
@@ -73,7 +74,6 @@ func (s *Sessions) Get(sessionID string) (userID uint, err error) {
 }
 
 func (s *Sessions) Run() {
-	Lifetime = time.Duration(config.RedisConfig.TTLDays) * 24 * time.Hour // One week
 	for {
 		select {}
 	}
