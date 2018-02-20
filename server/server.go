@@ -12,8 +12,13 @@ import (
 )
 
 type Server struct {
-	Postgres *postgres.Connection
-	Redis    *redis.Client
+	Postgres     *postgres.Connection
+	RedisClients *RedisClients
+}
+
+type RedisClients struct {
+	Sessions *redis.Client
+	Roles    *redis.Client
 }
 
 func (s *Server) Run(port string) {
@@ -21,7 +26,7 @@ func (s *Server) Run(port string) {
 
 	hub := NewHub(c, s.Postgres)
 	authenticator := auth.New(c, s.Postgres)
-	sessions := session.New(c, s.Redis)
+	sessions := session.New(c, s.RedisClients.Sessions)
 
 	go hub.Run()
 	go authenticator.Run()
