@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/go-redis/redis"
+	"github.com/sanyokbig/cats-industry-server/sentinel"
 )
 
 type Server struct {
@@ -27,8 +28,11 @@ func (s *Server) Run(port string) {
 	hub := NewHub(c, s.Postgres)
 	authenticator := auth.New(c, s.Postgres)
 	sessions := session.New(c, s.RedisClients.Sessions)
+	sent := sentinel.NewSentinel(c, s.RedisClients.Sessions, s.Postgres)
+
 	c.Hub = hub
 	c.Sessions = sessions
+	c.Sentinel = sent
 
 	go hub.Run()
 	go authenticator.Run()

@@ -76,3 +76,36 @@ func (u *User) LinkWithCharacter(db sqlx.Queryer, characterID uint) (err error) 
 	rows.Close()
 	return nil
 }
+
+// Returns string representation of user roles
+func (u User) GetRoles(db sqlx.Queryer) (roles *[]string, err error) {
+	roles = &[]string{}
+	rows, err := db.Queryx(`
+		WITH roles_ids AS (
+		  WITH groups_ids AS (
+		      SELECT group_id
+		      FROM users_groups
+		      WHERE user_id = $1
+		  )
+		  SELECT role_id
+		  FROM groups_roles
+		  WHERE group_id IN (SELECT group_id
+		                     FROM groups_ids)
+		)
+		-- Role names
+		SELECT name
+		FROM roles
+		WHERE id IN (SELECT role_id
+		             FROM roles_ids)
+	`, u.ID)
+	if err != nil {
+		return nil, err
+	}
+	var role string
+	for rows.Next() {
+		err = rows.Scan(&role)
+		*roles = append(*roles, role)
+	}
+
+	return roles, nil
+}
