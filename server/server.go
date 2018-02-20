@@ -28,7 +28,7 @@ func (s *Server) Run(port string) {
 	hub := NewHub(c, s.Postgres)
 	authenticator := auth.New(c, s.Postgres)
 	sessions := session.New(c, s.RedisClients.Sessions)
-	sent := sentinel.NewSentinel(c, s.RedisClients.Sessions, s.Postgres)
+	sent := sentinel.NewSentinel(c, s.RedisClients.Roles, s.Postgres)
 
 	c.Hub = hub
 	c.Sessions = sessions

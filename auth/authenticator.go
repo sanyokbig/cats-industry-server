@@ -103,7 +103,9 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 	defer func() {
 		if err != nil {
 			rbErr := tx.Rollback()
-			log.Println("failed to rollback:", rbErr)
+			if rbErr != nil {
+				log.Println("failed to rollback:", rbErr)
+			}
 			return
 		}
 		err = tx.Commit()
@@ -124,6 +126,12 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 	// If session have logged in user, add new character as an alt to user;
 	// login with character otherwise
 	if userID != 0 {
+		// Session have user, see if user allowed to add alts
+		allowed := auth.comms.Sentinel.Check(userID, "add_characters")
+		if !allowed {
+			return errors.New("not allowed to add new characters")
+		}
+
 		// Session have user, assign character as user alt
 		err = assignCharacterToUser(tx, character, userID)
 		if err != nil {
@@ -136,6 +144,8 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		if err != nil {
 			return err
 		}
+
+		// Store userID in session
 		err = auth.comms.Sessions.Set(state, userID)
 		if err != nil {
 			return err
