@@ -20,13 +20,10 @@ type Sessions struct {
 }
 
 func New(comms *comms.Comms, client *redis.Client) *Sessions {
-	sessions := &Sessions{
+	return &Sessions{
 		comms: comms,
 		redis: client,
 	}
-
-	comms.Sessions = sessions
-	return sessions
 }
 
 // Create session with no user

@@ -27,6 +27,8 @@ func (s *Server) Run(port string) {
 	hub := NewHub(c, s.Postgres)
 	authenticator := auth.New(c, s.Postgres)
 	sessions := session.New(c, s.RedisClients.Sessions)
+	c.Hub = hub
+	c.Sessions = sessions
 
 	go hub.Run()
 	go authenticator.Run()
