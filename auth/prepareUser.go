@@ -24,6 +24,11 @@ func prepareUser(db sqlx.Queryer, characterID uint) (user *schema.User, err erro
 		if err != nil {
 			return nil, err
 		}
+		// Assign to default group
+		err = user.AssignToGroup(db, 1)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return user, nil
