@@ -77,6 +77,19 @@ func (u *User) LinkWithCharacter(db sqlx.Queryer, characterID uint) (err error) 
 	return nil
 }
 
+func (u *User) AssignToGroup(db sqlx.Queryer, groupID uint) (err error) {
+	rows, err := db.Queryx(`
+		INSERT INTO users_groups (user_id, group_id) VALUES ($1, $2)
+	`, u.ID, groupID)
+	if err != nil {
+		return
+	}
+	rows.Close()
+	return nil
+}
+
+
+
 // Returns string representation of user roles
 func (u User) GetRoles(db sqlx.Queryer) (roles *[]string, err error) {
 	roles = &[]string{}
