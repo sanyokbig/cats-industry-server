@@ -34,13 +34,13 @@ func (s *Sentinel) Check(userID uint, role string) bool {
 	// First check if key exists. If not, generate roles cache
 	exists, err := s.redis.Exists(key).Result()
 	if err != nil {
-		log.Println("failed exist check:",err)
+		log.Println("failed exist check:", err)
 		return false
 	}
 	if exists == 0 {
 		err = s.WarmUserRoles(userID)
 		if err != nil {
-			log.Println("failed to warm roles",err)
+			log.Println("failed to warm roles", err)
 			return false
 		}
 	}
@@ -106,4 +106,21 @@ func (s *Sentinel) WarmUserRoles(userID uint) error {
 		return err
 	}
 	return nil
+}
+
+// Runs through all stored user keys and updates roles list
+func (s *Sentinel) UpdateCache() {
+	iter := s.redis.Scan(0, "", 0).Iterator()
+	for iter.Next() {
+		userID, err := strconv.Atoi(iter.Val())
+		if err != nil {
+			log.Printf("failed to parse userID%v: %v", iter.Val(), err)
+			continue
+		}
+		err = s.WarmUserRoles(uint(userID))
+		if err != nil {
+			log.Printf("failed to warm user roles %v: %v", userID, err)
+			continue
+		}
+	}
 }
