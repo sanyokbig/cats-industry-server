@@ -11,19 +11,18 @@ import (
 	"github.com/sanyokbig/cats-industry-server/config"
 )
 
-// Session must be deleted after this time
-var Lifetime time.Duration
-
 type Sessions struct {
 	comms *comms.Comms
 	redis *redis.Client
+
+	lifetime time.Duration
 }
 
 func New(comms *comms.Comms, client *redis.Client) *Sessions {
-	Lifetime = time.Duration(config.RedisConfig.TTLDays) * 24 * time.Hour // One week
 	return &Sessions{
 		comms: comms,
 		redis: client,
+		lifetime: time.Duration(config.RedisConfig.TTLDays) * 24 * time.Hour, // One week
 	}
 }
 
@@ -37,7 +36,7 @@ func (s *Sessions) New() (sessionID string, err error) {
 
 	// Store empty session
 	sessionID = newSessionID.String()
-	err = s.redis.Set(sessionID, 0, Lifetime).Err()
+	err = s.redis.Set(sessionID, 0, s.lifetime).Err()
 	if err != nil {
 		return "", err
 	}
@@ -47,7 +46,7 @@ func (s *Sessions) New() (sessionID string, err error) {
 
 // Assign user to session
 func (s *Sessions) Set(sessionID string, userID uint) (err error) {
-	return s.redis.Set(sessionID, userID, Lifetime).Err()
+	return s.redis.Set(sessionID, userID, s.lifetime).Err()
 }
 
 // Get user of session
@@ -61,7 +60,7 @@ func (s *Sessions) Get(sessionID string) (userID uint, err error) {
 	}
 
 	// Update ttl when key read
-	err = s.redis.Expire(sessionID, Lifetime).Err()
+	err = s.redis.Expire(sessionID, s.lifetime).Err()
 	if err != nil {
 		return 0, err
 	}
