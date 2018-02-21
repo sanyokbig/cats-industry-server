@@ -152,7 +152,7 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	err = notifyClientAboutAuth(tx, state, userID, auth.comms.Hub)
+	err = notifyClientAboutAuth(tx, state, userID, auth.comms.Hub, auth.comms.Sentinel)
 	if err != nil {
 		return err
 	}

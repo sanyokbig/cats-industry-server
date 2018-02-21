@@ -2,5 +2,5 @@ package comms
 
 type Sentinel interface {
 	Check(userID uint, role string) bool
-	SetRoles(userID uint, roles *[]string) error
+	GetRoles(userID uint) (*[]string, error)
 }

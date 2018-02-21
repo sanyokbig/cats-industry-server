@@ -90,6 +90,23 @@ func (s *Sentinel) SetRoles(userID uint, roles *[]string) error {
 	return nil
 }
 
+// Returns list of roles form cache
+func (s *Sentinel) GetRoles(userID uint) (*[]string, error) {
+	key := strconv.Itoa(int(userID))
+	err := s.ensureRolesCached(userID)
+	if err != nil {
+		log.Println("failed to ensure roles cached:", err)
+		return nil, err
+	}
+
+	roles, err := s.redis.SMembers(key).Result()
+	if err != nil {
+		log.Println("check failed:", err)
+		return nil, err
+	}
+	return &roles, nil
+}
+
 func (s *Sentinel) ensureRolesCached(userID uint) error {
 	key := strconv.Itoa(int(userID))
 	// First check if key exists. If not, generate roles cache
