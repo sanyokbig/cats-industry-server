@@ -6,11 +6,12 @@ import (
 	"strconv"
 	"time"
 	"github.com/sanyokbig/cats-industry-server/config"
-	"log"
 	"github.com/sanyokbig/cats-industry-server/postgres"
 	"github.com/sanyokbig/cats-industry-server/schema"
+	"log"
 )
 
+// Sentinel is responsible for storing and checking user roles
 type Sentinel struct {
 	comms    *comms.Comms
 	redis    *redis.Client
@@ -30,21 +31,11 @@ func NewSentinel(comms *comms.Comms, redis *redis.Client, postgres *postgres.Con
 // Check if user have required role.
 func (s *Sentinel) Check(userID uint, role string) bool {
 	key := strconv.Itoa(int(userID))
-
-	// First check if key exists. If not, generate roles cache
-	exists, err := s.redis.Exists(key).Result()
+	err := s.ensureRolesCached(userID)
 	if err != nil {
-		log.Println("failed exist check:", err)
+		log.Println("failed to ensure roles cached:", err)
 		return false
 	}
-	if exists == 0 {
-		err = s.WarmUserRoles(userID)
-		if err != nil {
-			log.Println("failed to warm roles", err)
-			return false
-		}
-	}
-
 	// Check itself
 	roles, err := s.redis.SMembersMap(key).Result()
 	if err != nil {
@@ -81,12 +72,16 @@ func (s *Sentinel) SetRoles(userID uint, roles *[]string) error {
 		rs = append(rs, r)
 	}
 
-	if len(rs) != 0 {
-		if err := s.redis.SAdd(key, rs...).Err(); err != nil {
-			return err
-		}
+	// Stop here if zero roles passed, as error will occur.
+	// Print warning instead as this is not critical, but should not happen
+	if len(rs) == 0 {
+		log.Printf("w: zero roles passed fro user %v, cancelling roles set", key)
+		return nil
 	}
 
+	if err := s.redis.SAdd(key, rs...).Err(); err != nil {
+		return err
+	}
 	// Set ttl
 	if err := s.redis.Expire(key, s.lifetime).Err(); err != nil {
 		return err
@@ -95,8 +90,27 @@ func (s *Sentinel) SetRoles(userID uint, roles *[]string) error {
 	return nil
 }
 
+func (s *Sentinel) ensureRolesCached(userID uint) error {
+	key := strconv.Itoa(int(userID))
+	// First check if key exists. If not, generate roles cache
+	exists, err := s.redis.Exists(key).Result()
+	if err != nil {
+		return err
+	}
+	if exists == 0 {
+		log.Println("caching roles for user", key)
+		err = s.cacheUserRoles(userID)
+		log.Println("")
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // Get users roles from postgres and create entry in redis
-func (s *Sentinel) WarmUserRoles(userID uint) error {
+func (s *Sentinel) cacheUserRoles(userID uint) error {
 	roles, err := schema.User{ID: userID}.GetRoles(s.postgres)
 	if err != nil {
 		return err
@@ -110,17 +124,24 @@ func (s *Sentinel) WarmUserRoles(userID uint) error {
 
 // Runs through all stored user keys and updates roles list
 func (s *Sentinel) UpdateCache() {
+	log.Println("updating roles cache")
 	iter := s.redis.Scan(0, "", 0).Iterator()
+	updated, failed := 0, 0
 	for iter.Next() {
 		userID, err := strconv.Atoi(iter.Val())
 		if err != nil {
+			failed++
 			log.Printf("failed to parse userID%v: %v", iter.Val(), err)
 			continue
 		}
-		err = s.WarmUserRoles(uint(userID))
+		err = s.cacheUserRoles(uint(userID))
 		if err != nil {
+			failed++
 			log.Printf("failed to warm user roles %v: %v", userID, err)
 			continue
 		}
+		updated++
 	}
+	log.Printf("done updating cache: %v updated, %v failed", updated, failed)
+
 }

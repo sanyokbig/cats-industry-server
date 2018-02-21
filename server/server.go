@@ -34,9 +34,13 @@ func (s *Server) Run(port string) {
 	c.Sessions = sessions
 	c.Sentinel = sent
 
+	// Start accepting WS connections
 	go hub.Run()
+
+	// Start storing auth requests
 	go authenticator.Run()
 
+	// Update cached roles in case of changed groups/roles in database
 	go sent.UpdateCache()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
