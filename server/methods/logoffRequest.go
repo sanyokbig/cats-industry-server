@@ -18,5 +18,6 @@ func logoffRequest(c Client, _ schema.Message) (resp *schema.Message, err error)
 	}
 
 	resp.Type = "logoff_ok"
+	resp.Payload.SetAsDefaultAuthPayload()
 	return resp, nil
 }
