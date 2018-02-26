@@ -27,3 +27,10 @@ func (v *Payload) Deliver(target json.Unmarshaler) error {
 
 	return nil
 }
+
+func (p *Payload) SetAsDefaultAuthPayload() {
+	p = &Payload{
+		"user":  nil,
+		"roles": &[]string{},
+	}
+}
