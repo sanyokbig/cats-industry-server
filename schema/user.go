@@ -88,8 +88,6 @@ func (u *User) AssignToGroup(db sqlx.Queryer, groupID uint) (err error) {
 	return nil
 }
 
-
-
 // Returns string representation of user roles
 func (u User) GetRoles(db sqlx.Queryer) (roles *[]string, err error) {
 	roles = &[]string{}
@@ -121,4 +119,27 @@ func (u User) GetRoles(db sqlx.Queryer) (roles *[]string, err error) {
 	}
 
 	return roles, nil
+}
+
+type rolesGetter interface {
+	GetRoles(userID uint) (*[]string, error)
+}
+
+// Prepares payload ready to be sent to client. Will not alter receiver.
+func (u User) GetAuthPayload(db sqlx.Queryer, getter rolesGetter) (*Payload, error) {
+	// Get full user info
+	err := u.FindWithCharacters(db, u.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	roles, err := getter.GetRoles(u.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Payload{
+		"user":  u,
+		"roles": roles,
+	}, err
 }

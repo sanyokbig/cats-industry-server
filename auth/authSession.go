@@ -13,14 +13,9 @@ type sessionSender interface {
 
 func notifyClientAboutAuth(db sqlx.Queryer, sid string, userID uint, sender sessionSender, sentinel comms.Sentinel) error {
 	// Get full user info
-	user := &schema.User{}
+	user := &schema.User{ID: userID}
 
-	err := user.FindWithCharacters(db, userID)
-	if err != nil {
-		return err
-	}
-
-	roles, err := sentinel.GetRoles(userID)
+	payload, err := user.GetAuthPayload(db, sentinel)
 	if err != nil {
 		return err
 	}
@@ -28,10 +23,7 @@ func notifyClientAboutAuth(db sqlx.Queryer, sid string, userID uint, sender sess
 	// Send auth info to client via comms
 	sender.SendToSession(sid, &schema.Message{
 		Type: "auth",
-		Payload: schema.Payload{
-			"user":  user,
-			"roles": roles,
-		},
+		Payload: *payload,
 	})
 
 	return nil
