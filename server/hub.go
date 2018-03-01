@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/sanyokbig/cats-industry-server/comms"
 	"github.com/sanyokbig/cats-industry-server/postgres"
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/sanyokbig/cats-industry-server/schema"
 )
@@ -79,9 +79,9 @@ func (h *Hub) Run() {
 		}
 
 		for k, v := range h.sessions {
-			log.Print(k)
+			log.Debugf("s: %v", k)
 			for s := range v {
-				log.Print("	", s.id)
+				log.Debugf("		c: %v", s.id)
 			}
 		}
 	}

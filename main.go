@@ -1,15 +1,17 @@
 package main
 
 import (
+	"github.com/go-redis/redis"
 	"github.com/sanyokbig/cats-industry-server/config"
 	"github.com/sanyokbig/cats-industry-server/postgres"
 	"github.com/sanyokbig/cats-industry-server/server"
-
-	"github.com/go-redis/redis"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	log.SetLevel(log.DebugLevel)
+
 	config.Parse()
 	db := postgres.NewConnection(
 		config.PostgresConfig.Host,

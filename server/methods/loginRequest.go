@@ -1,11 +1,12 @@
 package methods
 
 import (
+	"fmt"
+
 	"github.com/sanyokbig/cats-industry-server/comms"
 	"github.com/sanyokbig/cats-industry-server/config"
 	"github.com/sanyokbig/cats-industry-server/schema"
-	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/go-errors/errors"
 )
@@ -24,19 +25,19 @@ type loginRequestPayload struct {
 
 // Generate login uri for client and add client to pending
 func loginRequest(c Client, m schema.Message) (resp *schema.Message, err error) {
-	log.Println("log request from", c.GetID())
+	log.Infof("log request from %v", c.GetID())
 
 	// Parse incoming payload
 	payload := loginRequestPayload{}
 	if err := m.Payload.Deliver(&payload); err != nil {
-		log.Println(err)
+		log.Errorf("failed to deliver payload: %v", err)
 		return nil, ErrPayloadParseFailed
 	}
 
 	// Select scope set for authorization
 	scopes, ok := schema.ScopeSets[payload.ScopeSet]
 	if !ok {
-		log.Printf("scope set for %v not found", payload.ScopeSet)
+		log.Errorf("no scope set found for '%v'", payload.ScopeSet)
 		return nil, ErrNoScopeSet
 	}
 

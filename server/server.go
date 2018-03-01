@@ -1,15 +1,15 @@
 package server
 
 import (
-	"github.com/sanyokbig/cats-industry-server/auth"
-	"github.com/sanyokbig/cats-industry-server/comms"
-	"github.com/sanyokbig/cats-industry-server/postgres"
-	"github.com/sanyokbig/cats-industry-server/session"
-	"log"
 	"net/http"
 
 	"github.com/go-redis/redis"
+	"github.com/sanyokbig/cats-industry-server/auth"
+	"github.com/sanyokbig/cats-industry-server/comms"
+	"github.com/sanyokbig/cats-industry-server/postgres"
 	"github.com/sanyokbig/cats-industry-server/sentinel"
+	"github.com/sanyokbig/cats-industry-server/session"
+	log "github.com/sirupsen/logrus"
 )
 
 type Server struct {
@@ -50,6 +50,6 @@ func (s *Server) Run(port string) {
 		authenticator.HandleSSORequest(w, r)
 	})
 
-	log.Printf("listening on :%v\n", port)
+	log.Infof("listening on :%v", port)
 	http.ListenAndServe(":"+port, nil)
 }

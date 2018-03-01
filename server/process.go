@@ -1,10 +1,11 @@
 package server
 
 import (
+	"encoding/json"
+
 	"github.com/sanyokbig/cats-industry-server/schema"
 	"github.com/sanyokbig/cats-industry-server/server/methods"
-	"encoding/json"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 // General processing of ws requests
@@ -13,24 +14,24 @@ func processRequest(c *Client, msg []byte) {
 
 	err := json.Unmarshal(msg, &request)
 	if err != nil {
-		log.Println(err)
+		log.Errorf("failed to unmarshal request: %v", err)
 		return
 	}
 
 	if request.Type == "" {
-		log.Printf("%v have no \"type\"", string(msg))
+		log.Errorf("%v have no 'type'", string(msg))
 		return
 	}
 
 	handler := methods.Get(request.Type)
 	if handler == nil {
-		log.Printf("request \"%v\" not handled: unknown type", request)
+		log.Warningf("request '%v' not handled: unknown type %v", request, request.Type)
 		return
 	}
-	toSend, err := handler(c, request)
 
+	toSend, err := handler(c, request)
 	if err != nil {
-		log.Println(err)
+		log.Errorf("failed while executing handler: %v", err)
 	}
 
 	if toSend != nil {

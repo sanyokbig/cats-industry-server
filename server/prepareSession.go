@@ -1,14 +1,14 @@
 package server
 
 import (
-	"log"
 	"github.com/sanyokbig/cats-industry-server/schema"
+	log "github.com/sirupsen/logrus"
 )
 
 func prepareSession(hub *Hub) (msg *schema.Message, sid string, err error) {
 	sid, err = hub.comms.Sessions.New()
 	if err != nil {
-		log.Print(err)
+		log.Errorf("failed to create new session: %v", err)
 		return
 	}
 

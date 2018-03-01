@@ -1,15 +1,15 @@
 package auth
 
 import (
-	"github.com/sanyokbig/cats-industry-server/comms"
-	"github.com/sanyokbig/cats-industry-server/postgres"
-	"log"
 	"net/http"
 
 	"io"
 
 	"github.com/go-errors/errors"
 	"github.com/jmoiron/sqlx"
+	"github.com/sanyokbig/cats-industry-server/comms"
+	"github.com/sanyokbig/cats-industry-server/postgres"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -53,7 +53,7 @@ func (auth *Authenticator) Run() {
 func rollback(tx *sqlx.Tx) {
 	rbErr := tx.Rollback()
 	if rbErr != nil {
-		log.Println("failed to rollback:", rbErr)
+		log.Errorf("failed to rollback: %v", rbErr)
 	}
 }
 
@@ -61,7 +61,7 @@ func rollback(tx *sqlx.Tx) {
 func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Request) (err error) {
 	defer func() {
 		if err != nil {
-			log.Println(err)
+			log.Errorf("failed to handle sso request: %v", err)
 			respError(w, err)
 		} else {
 			w.Write([]byte("<script>window.close()</script>"))
@@ -152,7 +152,7 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 	// Commit tx
 	err = tx.Commit()
 	if err != nil {
-		log.Println(err)
+		log.Errorf("failed to commig tx: %v", err)
 		return errors.New("failed to commit tx")
 	}
 
@@ -161,7 +161,7 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
-	log.Println("login info sent to", clientID)
+	log.Infof("login info sent to %v", clientID)
 
 	return nil
 }
