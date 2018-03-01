@@ -10,12 +10,6 @@ import (
 	"github.com/go-errors/errors"
 )
 
-var scopeSets = map[string]string{
-	"simple":     "publicData",
-	"industrial": "characterIndustryJobsRead corporationIndustryJobsRead",
-	"mailing":    "esi-mail.send_mail.v1",
-}
-
 var (
 	ErrPayloadParseFailed = errors.New("failed to parse payload")
 	ErrNoScopeSet         = errors.New("scope set not found")
@@ -40,7 +34,7 @@ func loginRequest(c Client, m schema.Message) (resp *schema.Message, err error) 
 	}
 
 	// Select scope set for authorization
-	scopes, ok := scopeSets[payload.ScopeSet]
+	scopes, ok := schema.ScopeSets[payload.ScopeSet]
 	if !ok {
 		log.Printf("scope set for %v not found", payload.ScopeSet)
 		return nil, ErrNoScopeSet

@@ -21,16 +21,16 @@ func main() {
 
 	err := db.Connect()
 	if err != nil {
-		log.Fatalln("failed to connect with pg:",err)
+		log.Fatalln("failed to connect with pg:", err)
 	}
 
 	redisClients, err := getRedisClients()
 	if err != nil {
-		log.Fatalln("failed to get redis clients:",err)
+		log.Fatalln("failed to get redis clients:", err)
 	}
 
 	srv := server.Server{
-		Postgres: db,
+		Postgres:     db,
 		RedisClients: redisClients,
 	}
 

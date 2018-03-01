@@ -17,7 +17,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonCef4e921DecodeCatsIndustryServerSchema(in *jlexer.Lexer, out *Token) {
+func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema(in *jlexer.Lexer, out *Token) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -42,8 +42,10 @@ func easyjsonCef4e921DecodeCatsIndustryServerSchema(in *jlexer.Lexer, out *Token
 			out.CharacterID = uint(in.Uint())
 		case "ExpiresAt":
 			out.ExpiresAt = int64(in.Int64())
-		case "type":
+		case "Type":
 			out.Type = string(in.String())
+		case "Scopes":
+			out.Scopes = string(in.String())
 		case "expires_in":
 			out.ExpiresIn = int(in.Int())
 		case "access_token":
@@ -60,7 +62,7 @@ func easyjsonCef4e921DecodeCatsIndustryServerSchema(in *jlexer.Lexer, out *Token
 		in.Consumed()
 	}
 }
-func easyjsonCef4e921EncodeCatsIndustryServerSchema(out *jwriter.Writer, in Token) {
+func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema(out *jwriter.Writer, in Token) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -95,7 +97,7 @@ func easyjsonCef4e921EncodeCatsIndustryServerSchema(out *jwriter.Writer, in Toke
 		out.Int64(int64(in.ExpiresAt))
 	}
 	{
-		const prefix string = ",\"type\":"
+		const prefix string = ",\"Type\":"
 		if first {
 			first = false
 			out.RawString(prefix[1:])
@@ -103,6 +105,16 @@ func easyjsonCef4e921EncodeCatsIndustryServerSchema(out *jwriter.Writer, in Toke
 			out.RawString(prefix)
 		}
 		out.String(string(in.Type))
+	}
+	{
+		const prefix string = ",\"Scopes\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Scopes))
 	}
 	{
 		const prefix string = ",\"expires_in\":"
@@ -140,27 +152,27 @@ func easyjsonCef4e921EncodeCatsIndustryServerSchema(out *jwriter.Writer, in Toke
 // MarshalJSON supports json.Marshaler interface
 func (v Token) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonCef4e921EncodeCatsIndustryServerSchema(&w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Token) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonCef4e921EncodeCatsIndustryServerSchema(w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Token) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonCef4e921DecodeCatsIndustryServerSchema(&r, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Token) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonCef4e921DecodeCatsIndustryServerSchema(l, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema(l, v)
 }
-func easyjsonCef4e921DecodeCatsIndustryServerSchema1(in *jlexer.Lexer, out *Skill) {
+func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema1(in *jlexer.Lexer, out *Skill) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -197,7 +209,7 @@ func easyjsonCef4e921DecodeCatsIndustryServerSchema1(in *jlexer.Lexer, out *Skil
 		in.Consumed()
 	}
 }
-func easyjsonCef4e921EncodeCatsIndustryServerSchema1(out *jwriter.Writer, in Skill) {
+func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema1(out *jwriter.Writer, in Skill) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -247,27 +259,27 @@ func easyjsonCef4e921EncodeCatsIndustryServerSchema1(out *jwriter.Writer, in Ski
 // MarshalJSON supports json.Marshaler interface
 func (v Skill) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonCef4e921EncodeCatsIndustryServerSchema1(&w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Skill) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonCef4e921EncodeCatsIndustryServerSchema1(w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Skill) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonCef4e921DecodeCatsIndustryServerSchema1(&r, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Skill) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonCef4e921DecodeCatsIndustryServerSchema1(l, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema1(l, v)
 }
-func easyjsonCef4e921DecodeCatsIndustryServerSchema2(in *jlexer.Lexer, out *Payload) {
+func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema2(in *jlexer.Lexer, out *Payload) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		in.Skip()
@@ -298,7 +310,7 @@ func easyjsonCef4e921DecodeCatsIndustryServerSchema2(in *jlexer.Lexer, out *Payl
 		in.Consumed()
 	}
 }
-func easyjsonCef4e921EncodeCatsIndustryServerSchema2(out *jwriter.Writer, in Payload) {
+func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema2(out *jwriter.Writer, in Payload) {
 	if in == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
 		out.RawString(`null`)
 	} else {
@@ -327,27 +339,27 @@ func easyjsonCef4e921EncodeCatsIndustryServerSchema2(out *jwriter.Writer, in Pay
 // MarshalJSON supports json.Marshaler interface
 func (v Payload) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonCef4e921EncodeCatsIndustryServerSchema2(&w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema2(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Payload) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonCef4e921EncodeCatsIndustryServerSchema2(w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema2(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Payload) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonCef4e921DecodeCatsIndustryServerSchema2(&r, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema2(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Payload) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonCef4e921DecodeCatsIndustryServerSchema2(l, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema2(l, v)
 }
-func easyjsonCef4e921DecodeCatsIndustryServerSchema3(in *jlexer.Lexer, out *Owner) {
+func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema3(in *jlexer.Lexer, out *Owner) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -388,7 +400,7 @@ func easyjsonCef4e921DecodeCatsIndustryServerSchema3(in *jlexer.Lexer, out *Owne
 		in.Consumed()
 	}
 }
-func easyjsonCef4e921EncodeCatsIndustryServerSchema3(out *jwriter.Writer, in Owner) {
+func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema3(out *jwriter.Writer, in Owner) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -458,27 +470,27 @@ func easyjsonCef4e921EncodeCatsIndustryServerSchema3(out *jwriter.Writer, in Own
 // MarshalJSON supports json.Marshaler interface
 func (v Owner) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonCef4e921EncodeCatsIndustryServerSchema3(&w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema3(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Owner) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonCef4e921EncodeCatsIndustryServerSchema3(w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema3(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Owner) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonCef4e921DecodeCatsIndustryServerSchema3(&r, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema3(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Owner) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonCef4e921DecodeCatsIndustryServerSchema3(l, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema3(l, v)
 }
-func easyjsonCef4e921DecodeCatsIndustryServerSchema4(in *jlexer.Lexer, out *Message) {
+func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema4(in *jlexer.Lexer, out *Message) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -511,7 +523,7 @@ func easyjsonCef4e921DecodeCatsIndustryServerSchema4(in *jlexer.Lexer, out *Mess
 		in.Consumed()
 	}
 }
-func easyjsonCef4e921EncodeCatsIndustryServerSchema4(out *jwriter.Writer, in Message) {
+func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema4(out *jwriter.Writer, in Message) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -541,27 +553,27 @@ func easyjsonCef4e921EncodeCatsIndustryServerSchema4(out *jwriter.Writer, in Mes
 // MarshalJSON supports json.Marshaler interface
 func (v Message) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonCef4e921EncodeCatsIndustryServerSchema4(&w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema4(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Message) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonCef4e921EncodeCatsIndustryServerSchema4(w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema4(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Message) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonCef4e921DecodeCatsIndustryServerSchema4(&r, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema4(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Message) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonCef4e921DecodeCatsIndustryServerSchema4(l, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema4(l, v)
 }
-func easyjsonCef4e921DecodeCatsIndustryServerSchema5(in *jlexer.Lexer, out *CharactersList) {
+func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema5(in *jlexer.Lexer, out *CharactersList) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		in.Skip()
@@ -589,7 +601,7 @@ func easyjsonCef4e921DecodeCatsIndustryServerSchema5(in *jlexer.Lexer, out *Char
 		in.Consumed()
 	}
 }
-func easyjsonCef4e921EncodeCatsIndustryServerSchema5(out *jwriter.Writer, in CharactersList) {
+func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema5(out *jwriter.Writer, in CharactersList) {
 	if in == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 		out.RawString("null")
 	} else {
@@ -607,27 +619,27 @@ func easyjsonCef4e921EncodeCatsIndustryServerSchema5(out *jwriter.Writer, in Cha
 // MarshalJSON supports json.Marshaler interface
 func (v CharactersList) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonCef4e921EncodeCatsIndustryServerSchema5(&w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema5(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v CharactersList) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonCef4e921EncodeCatsIndustryServerSchema5(w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema5(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *CharactersList) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonCef4e921DecodeCatsIndustryServerSchema5(&r, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema5(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *CharactersList) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonCef4e921DecodeCatsIndustryServerSchema5(l, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema5(l, v)
 }
-func easyjsonCef4e921DecodeCatsIndustryServerSchema6(in *jlexer.Lexer, out *Character) {
+func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema6(in *jlexer.Lexer, out *Character) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -652,6 +664,10 @@ func easyjsonCef4e921DecodeCatsIndustryServerSchema6(in *jlexer.Lexer, out *Char
 			out.Name = string(in.String())
 		case "is_main":
 			out.IsMain = bool(in.Bool())
+		case "is_mailing":
+			out.IsMailing = bool(in.Bool())
+		case "is_industrial":
+			out.IsIndustrial = bool(in.Bool())
 		default:
 			in.SkipRecursive()
 		}
@@ -662,7 +678,7 @@ func easyjsonCef4e921DecodeCatsIndustryServerSchema6(in *jlexer.Lexer, out *Char
 		in.Consumed()
 	}
 }
-func easyjsonCef4e921EncodeCatsIndustryServerSchema6(out *jwriter.Writer, in Character) {
+func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema6(out *jwriter.Writer, in Character) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -696,29 +712,49 @@ func easyjsonCef4e921EncodeCatsIndustryServerSchema6(out *jwriter.Writer, in Cha
 		}
 		out.Bool(bool(in.IsMain))
 	}
+	{
+		const prefix string = ",\"is_mailing\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Bool(bool(in.IsMailing))
+	}
+	{
+		const prefix string = ",\"is_industrial\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Bool(bool(in.IsIndustrial))
+	}
 	out.RawByte('}')
 }
 
 // MarshalJSON supports json.Marshaler interface
 func (v Character) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonCef4e921EncodeCatsIndustryServerSchema6(&w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema6(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Character) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonCef4e921EncodeCatsIndustryServerSchema6(w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema6(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Character) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonCef4e921DecodeCatsIndustryServerSchema6(&r, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema6(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Character) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonCef4e921DecodeCatsIndustryServerSchema6(l, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema6(l, v)
 }
