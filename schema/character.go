@@ -7,6 +7,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"strconv"
+	"fmt"
 )
 
 //easyjson:json
@@ -130,14 +131,15 @@ func (cl *CharactersList) LoadTokenStatus(db sqlx.Queryer) (err error) {
 	// Get all char ids
 	charIds := ""
 	for _, c := range *cl {
-		charIds += strconv.Itoa(int(c.ID))
+		charIds += strconv.Itoa(int(c.ID)) + ", "
 		results[c.ID] = &tokenResult{}
 	}
+	charIds = charIds[:len(charIds)-2]
 
 	// Load all tokens for these characters
-	rows, err := db.Queryx(`
-		SELECT character_id, scopes FROM tokens WHERE character_id in ($1)
-		`, charIds)
+	rows, err := db.Queryx(fmt.Sprintf(`
+		SELECT character_id, scopes FROM tokens WHERE character_id in (%v)
+		`, charIds))
 	if err != nil {
 		return err
 	}
