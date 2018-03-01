@@ -5,9 +5,9 @@ import (
 	"database/sql"
 )
 
-// Sends client auth info including user with its characters
-func restoreSession(sid string, hub *Hub) (resp *schema.Message, err error) {
-	resp = &schema.Message{
+// Prepares message with auth state to be sent to client
+func restoreSession(sid string, hub *Hub) (msg *schema.Message, err error) {
+	msg = &schema.Message{
 		Type:    "auth",
 		Payload: schema.Payload{},
 	}
@@ -18,22 +18,24 @@ func restoreSession(sid string, hub *Hub) (resp *schema.Message, err error) {
 		return nil, err
 	}
 
-	user := &schema.User{}
-	err = user.FindWithCharacters(hub.postgres, userID)
+	// Get auth payload for user if found
+	payload, err := schema.User{ID: userID}.GetAuthPayload(hub.postgres, hub.comms.Sentinel)
+	// Check for unexpected errors
 	if err != nil && err != sql.ErrNoRows {
-		// Unexpected error
 		return nil, err
 	}
-	resp.Payload["user"] = user
+
+	// Check if session bound to not existing user
 	if err == sql.ErrNoRows {
-		// Session bound to not existing user, reset session user
+		// Reset session user
 		err = hub.comms.Sessions.Set(sid, 0)
 		if err != nil {
 			return nil, err
 		}
-
-		resp.Payload["user"] = nil
+		msg.Payload.SetAsDefaultAuthPayload()
+		return msg, nil
 	}
 
-	return resp, nil
+	msg.Payload = *payload
+	return msg, nil
 }

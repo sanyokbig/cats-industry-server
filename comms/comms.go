@@ -5,6 +5,7 @@ type Comms struct {
 	Pending
 	Sessions
 	Hub
+	Sentinel
 }
 
 func New() *Comms {

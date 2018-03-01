@@ -9,11 +9,17 @@ import (
 	"net/http"
 
 	"github.com/go-redis/redis"
+	"github.com/sanyokbig/cats-industry-server/sentinel"
 )
 
 type Server struct {
-	Postgres *postgres.Connection
-	Redis    *redis.Client
+	Postgres     *postgres.Connection
+	RedisClients *RedisClients
+}
+
+type RedisClients struct {
+	Sessions *redis.Client
+	Roles    *redis.Client
 }
 
 func (s *Server) Run(port string) {
@@ -21,11 +27,21 @@ func (s *Server) Run(port string) {
 
 	hub := NewHub(c, s.Postgres)
 	authenticator := auth.New(c, s.Postgres)
-	sessions := session.New(c, s.Redis)
+	sessions := session.New(c, s.RedisClients.Sessions)
+	sent := sentinel.NewSentinel(c, s.RedisClients.Roles, s.Postgres)
 
+	c.Hub = hub
+	c.Sessions = sessions
+	c.Sentinel = sent
+
+	// Start accepting WS connections
 	go hub.Run()
+
+	// Start storing auth requests
 	go authenticator.Run()
-	go sessions.Run()
+
+	// Update cached roles in case of changed groups/roles in database
+	go sent.UpdateCache()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		ServeWs(hub, w, r)

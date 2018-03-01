@@ -6,6 +6,7 @@ import (
 	"github.com/sanyokbig/cats-industry-server/server"
 
 	"github.com/go-redis/redis"
+	"log"
 )
 
 func main() {
@@ -20,24 +21,50 @@ func main() {
 
 	err := db.Connect()
 	if err != nil {
-		panic(err)
+		log.Fatalln("failed to connect with pg:",err)
 	}
 
-	client := redis.NewClient(&redis.Options{
-		Addr:       config.RedisConfig.Uri,
-		DB:         config.RedisConfig.DB,
-		Password:   config.RedisConfig.Pass,
-		MaxRetries: 5,
-	})
-	_, err = client.Ping().Result()
+	redisClients, err := getRedisClients()
 	if err != nil {
-		panic(err)
+		log.Fatalln("failed to get redis clients:",err)
 	}
 
 	srv := server.Server{
 		Postgres: db,
-		Redis:    client,
+		RedisClients: redisClients,
 	}
 
 	srv.Run("9962")
+}
+
+func getRedisClients() (*server.RedisClients, error) {
+	clients := &server.RedisClients{}
+
+	// Sessions
+	sessions := redis.NewClient(&redis.Options{
+		Addr:       config.RedisConfig.Uri,
+		DB:         config.RedisConfig.SessionsDB,
+		Password:   config.RedisConfig.Pass,
+		MaxRetries: 5,
+	})
+	_, err := sessions.Ping().Result()
+	if err != nil {
+		return nil, err
+	}
+	clients.Sessions = sessions
+
+	// Roles
+	roles := redis.NewClient(&redis.Options{
+		Addr:       config.RedisConfig.Uri,
+		DB:         config.RedisConfig.RolesDB,
+		Password:   config.RedisConfig.Pass,
+		MaxRetries: 5,
+	})
+	_, err = sessions.Ping().Result()
+	if err != nil {
+		return nil, err
+	}
+	clients.Roles = roles
+
+	return clients, nil
 }

@@ -9,6 +9,7 @@ import (
 	"io"
 
 	"github.com/go-errors/errors"
+	"github.com/jmoiron/sqlx"
 )
 
 var (
@@ -46,6 +47,13 @@ func (auth *Authenticator) Run() {
 				delete(auth.pending, toRemove)
 			}
 		}
+	}
+}
+
+func rollback(tx *sqlx.Tx) {
+	rbErr := tx.Rollback()
+	if rbErr != nil {
+		log.Println("failed to rollback:", rbErr)
 	}
 }
 
@@ -100,33 +108,35 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		return errors.New("failed to begin tx: " + err.Error())
 	}
-	defer func() {
-		if err != nil {
-			rbErr := tx.Rollback()
-			log.Println("failed to rollback:", rbErr)
-			return
-		}
-		err = tx.Commit()
-	}()
 
 	// Create character owning token
 	character, err := prepareCharacter(tx, owner)
 	if err != nil {
+		rollback(tx)
 		return err
 	}
 
 	// Save token to database
 	err = token.Save(tx)
 	if err != nil {
+		rollback(tx)
 		return err
 	}
 
 	// If session have logged in user, add new character as an alt to user;
 	// login with character otherwise
 	if userID != 0 {
+		// Session have user, see if user allowed to add alts
+		allowed := auth.comms.Sentinel.Check(userID, "add_characters")
+		if !allowed {
+			rollback(tx)
+			return errors.New("not allowed to add new characters")
+		}
+
 		// Session have user, assign character as user alt
 		err = assignCharacterToUser(tx, character, userID)
 		if err != nil {
+			rollback(tx)
 			return err
 		}
 
@@ -134,15 +144,26 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 		// Session have no user. Login with this character
 		userID, err = loginWithCharacter(tx, character)
 		if err != nil {
+			rollback(tx)
 			return err
 		}
+
+		// Store userID in session
 		err = auth.comms.Sessions.Set(state, userID)
 		if err != nil {
+			rollback(tx)
 			return err
 		}
 	}
 
-	err = notifyClientAboutAuth(tx, state, userID, auth.comms.Hub)
+	// Commit tx
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+		return errors.New("failed to commit tx")
+	}
+
+	err = notifyClientAboutAuth(auth.db, state, userID, auth.comms.Hub, auth.comms.Sentinel)
 	if err != nil {
 		return err
 	}
