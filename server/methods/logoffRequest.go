@@ -7,7 +7,7 @@ import (
 
 // Generate login uri for client and add client to pending
 func logoffRequest(c Client, _ schema.Message) (resp *schema.Message, err error) {
-	log.Infof("logoff request from %v", c.GetID())
+	log.Infof("logoff request from session %v", c.GetSID())
 
 	resp = &schema.Message{}
 
@@ -19,5 +19,8 @@ func logoffRequest(c Client, _ schema.Message) (resp *schema.Message, err error)
 
 	resp.Type = "logoff_ok"
 	resp.Payload.SetAsDefaultAuthPayload()
+
+	log.Infof("logoff success for session %v", c.GetSID())
+
 	return resp, nil
 }
