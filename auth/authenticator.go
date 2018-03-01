@@ -126,13 +126,6 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 	// If session have logged in user, add new character as an alt to user;
 	// login with character otherwise
 	if userID != 0 {
-		// Session have user, see if user allowed to add alts
-		allowed := auth.comms.Sentinel.Check(userID, "add_characters")
-		if !allowed {
-			rollback(tx)
-			return errors.New("not allowed to add new characters")
-		}
-
 		// Session have user, assign character as user alt
 		err = assignCharacterToUser(tx, character, userID)
 		if err != nil {
