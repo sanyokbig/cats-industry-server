@@ -72,7 +72,7 @@ func (s *Sentinel) SetRoles(userID uint, roles *[]string) error {
 		rs = append(rs, r)
 	}
 
-	// Stop here if zero roles passed, as error will occur.
+	// Stop here if zero roles passed, as an error will occur.
 	// Print warning instead as this is not critical, but should not happen
 	if len(rs) == 0 {
 		log.Printf("zero roles passed for user %v, cancelling roles set", key)
