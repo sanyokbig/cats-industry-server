@@ -11,8 +11,9 @@ import (
 )
 
 var scopeSets = map[string]string{
-	"simple":        "publicData",
-	"industrialist": "publicData characterIndustryJobsRead corporationIndustryJobsRead esi-mail.send_mail.v1",
+	"simple":     "publicData",
+	"industrial": "publicData characterIndustryJobsRead corporationIndustryJobsRead",
+	"mailing":    "esi-mail.send_mail.v1",
 }
 
 var (
@@ -41,7 +42,7 @@ func loginRequest(c Client, m schema.Message) (resp *schema.Message, err error) 
 	// Select scope set for authorization
 	scopes, ok := scopeSets[payload.ScopeSet]
 	if !ok {
-		log.Println(err)
+		log.Printf("scope set for %v not found", payload.ScopeSet)
 		return nil, ErrNoScopeSet
 	}
 
