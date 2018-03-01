@@ -2,12 +2,12 @@ package methods
 
 import (
 	"github.com/sanyokbig/cats-industry-server/schema"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 // Generate login uri for client and add client to pending
 func logoffRequest(c Client, _ schema.Message) (resp *schema.Message, err error) {
-	log.Println("logoff request from", c.GetID())
+	log.Infof("logoff request from %v", c.GetID())
 
 	resp = &schema.Message{}
 

@@ -1,14 +1,15 @@
 package sentinel
 
 import (
-	"github.com/sanyokbig/cats-industry-server/comms"
-	"github.com/go-redis/redis"
 	"strconv"
 	"time"
+
+	"github.com/go-redis/redis"
+	"github.com/sanyokbig/cats-industry-server/comms"
 	"github.com/sanyokbig/cats-industry-server/config"
 	"github.com/sanyokbig/cats-industry-server/postgres"
 	"github.com/sanyokbig/cats-industry-server/schema"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 // Sentinel is responsible for storing and checking user roles
@@ -33,16 +34,16 @@ func (s *Sentinel) Check(userID uint, role string) bool {
 	key := strconv.Itoa(int(userID))
 	err := s.ensureRolesCached(userID)
 	if err != nil {
-		log.Println("failed to ensure roles cached:", err)
+		log.Errorf("failed to ensure roles cached: %v", err)
 		return false
 	}
 	// Check itself
 	roles, err := s.redis.SMembersMap(key).Result()
 	if err != nil {
-		log.Println("check failed:", err)
+		log.Errorf("check failed: %v", err)
 		return false
 	}
-	log.Println(roles)
+	log.Debug("got roles: %v", roles)
 
 	_, ok := roles[role]
 	return ok
@@ -75,7 +76,7 @@ func (s *Sentinel) SetRoles(userID uint, roles *[]string) error {
 	// Stop here if zero roles passed, as an error will occur.
 	// Print warning instead as this is not critical, but should not happen
 	if len(rs) == 0 {
-		log.Printf("zero roles passed for user %v, cancelling roles set", key)
+		log.Warningf("zero roles passed for user %v, cancelling roles set", key)
 		return nil
 	}
 
@@ -95,13 +96,13 @@ func (s *Sentinel) GetRoles(userID uint) (*[]string, error) {
 	key := strconv.Itoa(int(userID))
 	err := s.ensureRolesCached(userID)
 	if err != nil {
-		log.Println("failed to ensure roles cached:", err)
+		log.Errorf("failed to ensure roles cached: %v", err)
 		return nil, err
 	}
 
 	roles, err := s.redis.SMembers(key).Result()
 	if err != nil {
-		log.Println("check failed:", err)
+		log.Errorf("check failed: %v", err)
 		return nil, err
 	}
 	return &roles, nil
@@ -115,7 +116,7 @@ func (s *Sentinel) ensureRolesCached(userID uint) error {
 		return err
 	}
 	if exists == 0 {
-		log.Println("caching roles for user", key)
+		log.Infof("caching roles for user %v", key)
 		err = s.cacheUserRoles(userID)
 		if err != nil {
 			return err
@@ -140,24 +141,24 @@ func (s *Sentinel) cacheUserRoles(userID uint) error {
 
 // Runs through all stored user keys and updates roles list
 func (s *Sentinel) UpdateCache() {
-	log.Println("updating roles cache")
+	log.Info("updating roles cache")
 	iter := s.redis.Scan(0, "", 0).Iterator()
 	updated, failed := 0, 0
 	for iter.Next() {
 		userID, err := strconv.Atoi(iter.Val())
 		if err != nil {
 			failed++
-			log.Printf("failed to parse userID%v: %v", iter.Val(), err)
+			log.Errorf("failed to parse userID %v: %v", iter.Val(), err)
 			continue
 		}
 		err = s.cacheUserRoles(uint(userID))
 		if err != nil {
 			failed++
-			log.Printf("failed to warm user roles %v: %v", userID, err)
+			log.Errorf("failed to cache roles for user %v: %v", userID, err)
 			continue
 		}
 		updated++
 	}
-	log.Printf("done updating cache: %v updated, %v failed", updated, failed)
+	log.Infof("done updating cache: %v updated, %v failed", updated, failed)
 
 }

@@ -6,9 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/sanyokbig/cats-industry-server/config"
-	"log"
 	"time"
+
+	"github.com/sanyokbig/cats-industry-server/config"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/sanyokbig/cats-industry-server/postgres"
 
@@ -64,7 +65,7 @@ func (t *Token) Refresh() error {
 		return err
 	}
 
-	log.Println("new", t)
+	log.Debugf("refreshed token %v", t)
 	return nil
 }
 

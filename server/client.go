@@ -8,11 +8,12 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/sanyokbig/cats-industry-server/postgres"
-	"github.com/sanyokbig/cats-industry-server/schema"
-	"log"
 	"net/http"
 	"time"
+
+	"github.com/sanyokbig/cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/schema"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/satori/go.uuid"
 )
@@ -73,7 +74,7 @@ func (c *Client) readPump() {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
+				log.Errorf("error: %v", err)
 			}
 			break
 		}
@@ -105,7 +106,7 @@ func (c *Client) writePump() {
 
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
-				log.Println(err)
+				log.Errorf("failed to get next writer: %v", err)
 				return
 			}
 
@@ -120,7 +121,7 @@ func (c *Client) writePump() {
 			}
 
 			if err := w.Close(); err != nil {
-				log.Println(err)
+				log.Errorf("failed to close writer: %v", err)
 				return
 			}
 		case <-ticker.C:
@@ -135,7 +136,7 @@ func (c *Client) writePump() {
 func (c *Client) Respond(r *schema.Message) {
 	resp, err := json.Marshal(r)
 	if err != nil {
-		log.Println(err)
+		log.Errorf("failed to marshal response: %v", err)
 		return
 	}
 
@@ -146,7 +147,7 @@ func (c *Client) Respond(r *schema.Message) {
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		log.Errorf("failed to upgrade connectionL %v", err)
 		return
 	}
 	id := uuid.Must(uuid.NewV4()).String()
@@ -158,14 +159,14 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	if sid == "null" {
 		msg, sid, err = prepareSession(hub)
 		if err != nil {
-			log.Print(err)
+			log.Errorf("failed to prepare session: %v", err)
 			return
 		}
 	} else {
 		// If sid provided, there is chance that session have logged in user, try to restore it
 		msg, err = restoreSession(sid, hub)
 		if err != nil {
-			log.Print(err)
+			log.Errorf("failed to restore session: %v", err)
 			return
 		}
 	}
