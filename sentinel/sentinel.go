@@ -75,7 +75,7 @@ func (s *Sentinel) SetRoles(userID uint, roles *[]string) error {
 	// Stop here if zero roles passed, as error will occur.
 	// Print warning instead as this is not critical, but should not happen
 	if len(rs) == 0 {
-		log.Printf("w: zero roles passed fro user %v, cancelling roles set", key)
+		log.Printf("zero roles passed for user %v, cancelling roles set", key)
 		return nil
 	}
 
@@ -117,7 +117,6 @@ func (s *Sentinel) ensureRolesCached(userID uint) error {
 	if exists == 0 {
 		log.Println("caching roles for user", key)
 		err = s.cacheUserRoles(userID)
-		log.Println("")
 		if err != nil {
 			return err
 		}
