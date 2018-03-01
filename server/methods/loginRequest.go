@@ -12,7 +12,7 @@ import (
 
 var scopeSets = map[string]string{
 	"simple":     "publicData",
-	"industrial": "publicData characterIndustryJobsRead corporationIndustryJobsRead",
+	"industrial": "characterIndustryJobsRead corporationIndustryJobsRead",
 	"mailing":    "esi-mail.send_mail.v1",
 }
 
