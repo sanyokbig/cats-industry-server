@@ -63,6 +63,12 @@ func (u *User) FindWithCharacters(db sqlx.Queryer, userID uint) error {
 		return err
 	}
 
+	// Set bool flags for token availability
+	err = u.Characters.LoadTokenStatus(db)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 
 	"github.com/jmoiron/sqlx"
+	"strconv"
 )
 
 //easyjson:json
@@ -14,6 +15,9 @@ type Character struct {
 	Name   string  `json:"name" db:"name"`
 	IsMain bool    `json:"is_main" db:"is_main"`
 	Skills []Skill `json:"-"`
+
+	IsMailing    bool `json:"is_mailing"`
+	IsIndustrial bool `json:"is_industrial"`
 }
 
 //easyjson:json
@@ -111,6 +115,60 @@ func (c *Character) UnsetMain(db sqlx.Queryer) (err error) {
 		return err
 	}
 	rows.Close()
+
+	return nil
+}
+
+type tokenResult struct {
+	isMailing    bool
+	isIndustrial bool
+}
+
+// Define what type of token character provided.
+func (cl *CharactersList) LoadTokenStatus(db sqlx.Queryer) (err error) {
+	results := map[uint]*tokenResult{}
+	// Get all char ids
+	charIds := ""
+	for _, c := range *cl {
+		charIds += strconv.Itoa(int(c.ID))
+		results[c.ID] = &tokenResult{}
+	}
+
+	// Load all tokens for these characters
+	rows, err := db.Queryx(`
+		SELECT character_id, scopes FROM tokens WHERE character_id in ($1)
+		`, charIds)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	// Run through result and set flags
+	for rows.Next() {
+		c, sc := uint(0), ""
+		err = rows.Scan(&c, &sc)
+		if err != nil {
+			return err
+		}
+		// Get type of token scope set
+		name, ok := ScopeSetsReversed[sc]
+		if ok {
+			if name == "industrial" {
+				(results[c]).isIndustrial = true
+			} else if name == "mailing" {
+				(results[c]).isMailing = true
+			}
+		}
+	}
+
+	for i, char := range *cl {
+		r, ok := results[char.ID]
+		if ok {
+			char.IsIndustrial = r.isIndustrial
+			char.IsMailing = r.isMailing
+		}
+		(*cl)[i] = char
+	}
 
 	return nil
 }
