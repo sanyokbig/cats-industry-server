@@ -77,10 +77,13 @@ func (u *User) LinkWithCharacter(db sqlx.Queryer, characterID uint) (err error) 
 	return nil
 }
 
-func (u *User) AssignToGroup(db sqlx.Queryer, groupID uint) (err error) {
+func (u *User) AssignToGroup(db sqlx.Queryer, groupName string) (err error) {
 	rows, err := db.Queryx(`
-		INSERT INTO users_groups (user_id, group_id) VALUES ($1, $2)
-	`, u.ID, groupID)
+		WITH g AS (
+			SELECT id FROM groups WHERE name = $2
+		)
+		INSERT INTO users_groups (user_id, group_id) VALUES ($1, (SELECT id FROM g))
+	`, u.ID, groupName)
 	if err != nil {
 		return
 	}
