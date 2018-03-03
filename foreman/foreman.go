@@ -1,7 +1,7 @@
 package foreman
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/sanyokbig/cats-industry-server/comms"
 )
@@ -17,5 +17,5 @@ func NewForeman(comms *comms.Comms) *Foreman {
 }
 
 func (f Foreman) UpdateJobs() {
-	log.Println("updateing jobs")
+	log.Infof("updating jobs")
 }

@@ -33,6 +33,9 @@ func (s *Schedule) Run() {
 	updateJobsEvery := time.Minute * time.Duration(s.updateJobs)
 	jobsUpdate := time.NewTicker(updateJobsEvery)
 
+	// Initial ran
+	s.comms.Foreman.UpdateJobs()
+
 	for {
 		select {
 		case <-jobsUpdate.C:
