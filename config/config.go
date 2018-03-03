@@ -24,6 +24,10 @@ var RedisConfig struct {
 	RolesDB    int    `env:"REDIS_DB_ROLES"`
 }
 
+var ScheduleConfig struct {
+	UpdateJobs int `env:"SCHEDULE_UPDATE_JOBS"`
+}
+
 func Parse() {
 	err := env.Parse(&EveConfig)
 	if err != nil {
@@ -34,6 +38,10 @@ func Parse() {
 		panic(err)
 	}
 	err = env.Parse(&RedisConfig)
+	if err != nil {
+		panic(err)
+	}
+	err = env.Parse(&ScheduleConfig)
 	if err != nil {
 		panic(err)
 	}

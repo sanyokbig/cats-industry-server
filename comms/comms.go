@@ -6,6 +6,7 @@ type Comms struct {
 	Sessions
 	Hub
 	Sentinel
+	Foreman
 }
 
 func New() *Comms {
