@@ -32,7 +32,7 @@ func (s *Server) Run(port string) {
 	authenticator := auth.New(c, s.Postgres)
 	sessions := session.New(c, s.RedisClients.Sessions)
 	sent := sentinel.NewSentinel(c, s.RedisClients.Roles, s.Postgres)
-	fore := foreman.NewForeman(c)
+	fore := foreman.NewForeman(c, s.Postgres)
 	schedul := schedule.NewSchedule(c, config.ScheduleConfig.UpdateJobs)
 
 	c.Hub = hub

@@ -24,3 +24,5 @@ type Job struct {
 	CompletedCharacterId uint    `json:"completed_character_id"`
 	SuccessfulRuns       uint    `json:"successful_runs"`
 }
+
+type Jobs []Job

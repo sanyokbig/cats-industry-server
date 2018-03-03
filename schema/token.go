@@ -14,6 +14,7 @@ import (
 	"github.com/sanyokbig/cats-industry-server/postgres"
 
 	"github.com/go-errors/errors"
+	"github.com/jmoiron/sqlx"
 )
 
 //easyjson:json
@@ -27,6 +28,8 @@ type Token struct {
 	AccessToken  string `json:"access_token" db:"access_token"`
 	RefreshToken string `json:"refresh_token" db:"refresh_token"`
 }
+
+type Tokens []Token
 
 //easyjson:json
 type Owner struct {
@@ -133,6 +136,31 @@ func (t *Token) Save(db postgres.NamedQueryer) error {
 	err = rows.StructScan(t)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (t *Tokens) GetTokensOfScope(queryer sqlx.Queryer, setName string) error {
+	set, ok := ScopeSets[setName]
+	if !ok {
+		return errors.New(fmt.Sprintf("scope set with name '%v' not found", setName))
+	}
+	rows, err := queryer.Queryx(`
+		SELECT id, character_id, expires_at, scopes, access_token, refresh_token FROM tokens WHERE scopes = $1;
+	`, set)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	token := Token{}
+	for rows.Next() {
+		err := rows.StructScan(&token)
+		if err != nil {
+			return err
+		}
+		*t = append(*t, token)
 	}
 
 	return nil
