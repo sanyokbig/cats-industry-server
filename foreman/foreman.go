@@ -3,21 +3,23 @@ package foreman
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/jmoiron/sqlx"
+	"sync"
+
 	"github.com/sanyokbig/cats-industry-server/comms"
+	"github.com/sanyokbig/cats-industry-server/postgres"
 	"github.com/sanyokbig/cats-industry-server/schema"
 )
 
 type Foreman struct {
 	comms *comms.Comms
 
-	db sqlx.Queryer
+	db postgres.DB
 }
 
-func NewForeman(comms *comms.Comms, queryer sqlx.Queryer) *Foreman {
+func NewForeman(comms *comms.Comms, db postgres.DB) *Foreman {
 	return &Foreman{
 		comms: comms,
-		db:    queryer,
+		db:    db,
 	}
 }
 
@@ -33,7 +35,7 @@ func (f *Foreman) UpdateJobs() {
 	log.Debugf("industrial tokens: %v", tokens)
 	// Get all jobs using token
 
-	jobs, err := f.pullJobs(tokens)
+	jobs, err := f.useTokens(tokens)
 	if err != nil {
 		log.Errorf("failed to pull jobs: %v", err)
 		return
@@ -43,6 +45,7 @@ func (f *Foreman) UpdateJobs() {
 	// Upsert to db
 }
 
+// Get all industrial tokens from db
 func (f *Foreman) getTokens() (*schema.Tokens, error) {
 	tokens := &schema.Tokens{}
 	err := tokens.GetTokensOfScope(f.db, "industrial")
@@ -53,6 +56,43 @@ func (f *Foreman) getTokens() (*schema.Tokens, error) {
 	return tokens, nil
 }
 
-func (f *Foreman) pullJobs(tokens *schema.Tokens) (*schema.Jobs, error) {
-	return nil, nil
+// Use passed tokens to get jobs list from EVE server
+func (f *Foreman) useTokens(tokens *schema.Tokens) (jobs *schema.Jobs, err error) {
+	wg := sync.WaitGroup{}
+	pulledJobs := make(chan *schema.Jobs, len(*tokens))
+
+	for _, t := range *tokens {
+		wg.Add(1)
+		f.goPull(&wg, t, pulledJobs)
+	}
+
+	wg.Wait()
+	close(pulledJobs)
+
+	//jobs := &schema.Jobs{}
+	//for _, js := range  {
+	//
+	//}
+
+	return jobs, nil
+}
+
+func (f *Foreman) goPull(wg *sync.WaitGroup, t schema.Token, result chan<- *schema.Jobs) {
+	defer wg.Done()
+	jobs, err := f.pullJobs(&t)
+	if err != nil {
+		log.Errorf("failed to pull jobs with token %v: %v", t.ID, err)
+	}
+	result <- jobs
+}
+
+// Pull jobs with passed token
+func (f *Foreman) pullJobs(token *schema.Token) (jobs *schema.Jobs, err error) {
+	// Make sure token is alive
+	if err := token.Refresh(f.db); err != nil {
+		log.Error(err)
+		return nil, schema.ErrFailedToRefreshToken
+	}
+
+	return jobs, nil
 }

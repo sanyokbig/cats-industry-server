@@ -46,11 +46,23 @@ var (
 )
 
 // Refreshes token if needed
-func (t *Token) Refresh() error {
-	if t.IsExpired() {
-		log.Debugf("token %v expired, refreshing", t.ID)
-		return t.refresh()
+func (t *Token) Refresh(db postgres.NamedQueryer) error {
+	if !t.IsExpired() {
+		return nil
 	}
+	log.Debugf("token %v expired, refreshing", t.ID)
+	err := t.refresh()
+	if err != nil {
+		return nil
+	}
+
+	t.ExpiresAt = time.Now().Unix() + int64(t.ExpiresIn)
+
+	err = t.Save(db)
+	if err != nil {
+		log.Warningf("failed to save refreshed token: %v", err)
+	}
+
 	return nil
 }
 

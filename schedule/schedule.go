@@ -39,7 +39,7 @@ func (s *Schedule) Run() {
 	for {
 		select {
 		case <-jobsUpdate.C:
-			s.comms.Foreman.UpdateJobs()
+			//s.comms.Foreman.UpdateJobs()
 		case <-s.stop:
 			log.Info("schedule stop called, exiting")
 			break
