@@ -41,31 +41,48 @@ type Owner struct {
 	CharacterOwnerHash string `json:"CharacterOwnerHash"`
 }
 
-// Updates token from Eve server
+var (
+	ErrFailedToRefreshToken = errors.New("failed to refresh token")
+)
+
+// Refreshes token if needed
 func (t *Token) Refresh() error {
+	if t.IsExpired() {
+		log.Debugf("token %v expired, refreshing", t.ID)
+		return t.refresh()
+	}
+	return nil
+}
+
+// Updates token from Eve server
+func (t *Token) refresh() error {
 	c := &http.Client{}
 	url := fmt.Sprintf("https://login.eveonline.com/oauth/token?grant_type=refresh_token&refresh_token=%v", t.RefreshToken)
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.New("failed to prepare post request")
 	}
 
 	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(config.EveConfig.ClientId+":"+config.EveConfig.SecretKey)))
 
 	resp, err := c.Do(req)
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.New("failed to do post request")
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.New("failed to read response")
 	}
 
 	err = t.UnmarshalJSON(bodyBytes)
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.New("failed to unmarshal response")
 	}
 
 	log.Debugf("refreshed token %v", t)
