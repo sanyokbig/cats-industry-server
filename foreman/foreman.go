@@ -63,16 +63,16 @@ func (f *Foreman) useTokens(tokens *schema.Tokens) (jobs *schema.Jobs, err error
 
 	for _, t := range *tokens {
 		wg.Add(1)
-		f.goPull(&wg, t, pulledJobs)
+		go f.goPull(&wg, t, pulledJobs)
 	}
 
 	wg.Wait()
 	close(pulledJobs)
 
 	//jobs := &schema.Jobs{}
-	//for _, js := range  {
-	//
-	//}
+	for js := range pulledJobs {
+		log.Info(js)
+	}
 
 	return jobs, nil
 }
