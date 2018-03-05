@@ -7,7 +7,7 @@ type Role struct {
 
 var ScopeSets = map[string]string{
 	"simple":     "publicData",
-	"industrial": "characterIndustryJobsRead corporationIndustryJobsRead",
+	"industrial": "esi-industry.read_character_jobs.v1 esi-industry.read_corporation_jobs.v1",
 	"mailing":    "esi-mail.send_mail.v1",
 }
 
