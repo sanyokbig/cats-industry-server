@@ -573,7 +573,416 @@ func (v *Message) UnmarshalJSON(data []byte) error {
 func (v *Message) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema4(l, v)
 }
-func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema5(in *jlexer.Lexer, out *CharactersList) {
+func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema5(in *jlexer.Lexer, out *Jobs) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		in.Skip()
+		*out = nil
+	} else {
+		in.Delim('[')
+		if *out == nil {
+			if !in.IsDelim(']') {
+				*out = make(Jobs, 0, 1)
+			} else {
+				*out = Jobs{}
+			}
+		} else {
+			*out = (*out)[:0]
+		}
+		for !in.IsDelim(']') {
+			var v3 Job
+			(v3).UnmarshalEasyJSON(in)
+			*out = append(*out, v3)
+			in.WantComma()
+		}
+		in.Delim(']')
+	}
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema5(out *jwriter.Writer, in Jobs) {
+	if in == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+		out.RawString("null")
+	} else {
+		out.RawByte('[')
+		for v4, v5 := range in {
+			if v4 > 0 {
+				out.RawByte(',')
+			}
+			(v5).MarshalEasyJSON(out)
+		}
+		out.RawByte(']')
+	}
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Jobs) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema5(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Jobs) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema5(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Jobs) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema5(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Jobs) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema5(l, v)
+}
+func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema6(in *jlexer.Lexer, out *Job) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeString()
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.ID = uint(in.Uint())
+		case "job_id":
+			out.EveID = uint(in.Uint())
+		case "installer_id":
+			out.InstallerID = uint(in.Uint())
+		case "facility_id":
+			out.FacilityID = uint64(in.Uint64())
+		case "station_id":
+			out.StationID = uint64(in.Uint64())
+		case "activity_id":
+			out.ActivityID = uint(in.Uint())
+		case "blueprint_id":
+			out.BlueprintID = uint64(in.Uint64())
+		case "blueprint_type_id":
+			out.BlueprintTypeID = uint(in.Uint())
+		case "blueprint_location_id":
+			out.BlueprintLocationID = uint64(in.Uint64())
+		case "output_location_id":
+			out.OutputLocationID = uint64(in.Uint64())
+		case "runs":
+			out.Runs = uint(in.Uint())
+		case "cost":
+			out.Cost = float32(in.Float32())
+		case "licensed_runs":
+			out.LicensedRuns = uint(in.Uint())
+		case "probability":
+			out.Probability = float64(in.Float64())
+		case "product_type_id":
+			out.ProductTypeID = uint(in.Uint())
+		case "status":
+			out.Status = string(in.String())
+		case "duration":
+			out.Duration = uint(in.Uint())
+		case "start_date":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.StartDate).UnmarshalJSON(data))
+			}
+		case "end_date":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.EndDate).UnmarshalJSON(data))
+			}
+		case "pause_date":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.PauseDate).UnmarshalJSON(data))
+			}
+		case "completed_date":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.CompletedDate).UnmarshalJSON(data))
+			}
+		case "completed_character_id":
+			out.CompletedCharacterID = uint(in.Uint())
+		case "successful_runs":
+			out.SuccessfulRuns = uint(in.Uint())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema6(out *jwriter.Writer, in Job) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint(uint(in.ID))
+	}
+	{
+		const prefix string = ",\"job_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint(uint(in.EveID))
+	}
+	{
+		const prefix string = ",\"installer_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint(uint(in.InstallerID))
+	}
+	{
+		const prefix string = ",\"facility_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.FacilityID))
+	}
+	{
+		const prefix string = ",\"station_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.StationID))
+	}
+	{
+		const prefix string = ",\"activity_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint(uint(in.ActivityID))
+	}
+	{
+		const prefix string = ",\"blueprint_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.BlueprintID))
+	}
+	{
+		const prefix string = ",\"blueprint_type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint(uint(in.BlueprintTypeID))
+	}
+	{
+		const prefix string = ",\"blueprint_location_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.BlueprintLocationID))
+	}
+	{
+		const prefix string = ",\"output_location_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.OutputLocationID))
+	}
+	{
+		const prefix string = ",\"runs\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint(uint(in.Runs))
+	}
+	{
+		const prefix string = ",\"cost\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float32(float32(in.Cost))
+	}
+	{
+		const prefix string = ",\"licensed_runs\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint(uint(in.LicensedRuns))
+	}
+	{
+		const prefix string = ",\"probability\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Float64(float64(in.Probability))
+	}
+	{
+		const prefix string = ",\"product_type_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint(uint(in.ProductTypeID))
+	}
+	{
+		const prefix string = ",\"status\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Status))
+	}
+	{
+		const prefix string = ",\"duration\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint(uint(in.Duration))
+	}
+	{
+		const prefix string = ",\"start_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.StartDate))
+	}
+	{
+		const prefix string = ",\"end_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.EndDate))
+	}
+	{
+		const prefix string = ",\"pause_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.PauseDate))
+	}
+	{
+		const prefix string = ",\"completed_date\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint64(uint64(in.CompletedDate))
+	}
+	{
+		const prefix string = ",\"completed_character_id\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint(uint(in.CompletedCharacterID))
+	}
+	{
+		const prefix string = ",\"successful_runs\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.Uint(uint(in.SuccessfulRuns))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v Job) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema6(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v Job) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema6(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *Job) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema6(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *Job) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema6(l, v)
+}
+func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema7(in *jlexer.Lexer, out *CharactersList) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		in.Skip()
@@ -590,9 +999,9 @@ func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema5(in *jlexe
 			*out = (*out)[:0]
 		}
 		for !in.IsDelim(']') {
-			var v3 Character
-			(v3).UnmarshalEasyJSON(in)
-			*out = append(*out, v3)
+			var v6 Character
+			(v6).UnmarshalEasyJSON(in)
+			*out = append(*out, v6)
 			in.WantComma()
 		}
 		in.Delim(']')
@@ -601,16 +1010,16 @@ func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema5(in *jlexe
 		in.Consumed()
 	}
 }
-func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema5(out *jwriter.Writer, in CharactersList) {
+func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema7(out *jwriter.Writer, in CharactersList) {
 	if in == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 		out.RawString("null")
 	} else {
 		out.RawByte('[')
-		for v4, v5 := range in {
-			if v4 > 0 {
+		for v7, v8 := range in {
+			if v7 > 0 {
 				out.RawByte(',')
 			}
-			(v5).MarshalEasyJSON(out)
+			(v8).MarshalEasyJSON(out)
 		}
 		out.RawByte(']')
 	}
@@ -619,27 +1028,27 @@ func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema5(out *jwri
 // MarshalJSON supports json.Marshaler interface
 func (v CharactersList) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema5(&w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema7(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v CharactersList) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema5(w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema7(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *CharactersList) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema5(&r, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema7(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *CharactersList) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema5(l, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema7(l, v)
 }
-func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema6(in *jlexer.Lexer, out *Character) {
+func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema8(in *jlexer.Lexer, out *Character) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -678,7 +1087,7 @@ func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema6(in *jlexe
 		in.Consumed()
 	}
 }
-func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema6(out *jwriter.Writer, in Character) {
+func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema8(out *jwriter.Writer, in Character) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -738,23 +1147,23 @@ func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema6(out *jwri
 // MarshalJSON supports json.Marshaler interface
 func (v Character) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema6(&w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema8(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Character) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema6(w, v)
+	easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema8(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *Character) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema6(&r, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema8(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Character) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema6(l, v)
+	easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema8(l, v)
 }

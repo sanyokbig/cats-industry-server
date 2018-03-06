@@ -5,6 +5,13 @@ import (
 
 	"sync"
 
+	"fmt"
+
+	"net/http"
+
+	"io/ioutil"
+
+	"github.com/go-errors/errors"
 	"github.com/sanyokbig/cats-industry-server/comms"
 	"github.com/sanyokbig/cats-industry-server/postgres"
 	"github.com/sanyokbig/cats-industry-server/schema"
@@ -13,7 +20,8 @@ import (
 type Foreman struct {
 	comms *comms.Comms
 
-	db postgres.DB
+	db      postgres.DB
+	baseUri string
 }
 
 func NewForeman(comms *comms.Comms, db postgres.DB) *Foreman {
@@ -35,14 +43,22 @@ func (f *Foreman) UpdateJobs() {
 	log.Debugf("industrial tokens: %v", tokens)
 	// Get all jobs using token
 
-	jobs, err := f.useTokens(tokens)
+	jobs, err := f.pullJobs(tokens)
 	if err != nil {
 		log.Errorf("failed to pull jobs: %v", err)
 		return
 	}
-	log.Debugf("pulled jobs: %v", jobs)
+
+	log.Debugf("pulled jobs: %v", len(*jobs))
+	log.Debugf("%+v", (*jobs)[0])
+
+	err = jobs.Save(f.db)
+	if err != nil {
+		log.Errorf("failed to save jobs: %v", err)
+	}
 
 	// Upsert to db
+
 }
 
 // Get all industrial tokens from db
@@ -57,7 +73,7 @@ func (f *Foreman) getTokens() (*schema.Tokens, error) {
 }
 
 // Use passed tokens to get jobs list from EVE server
-func (f *Foreman) useTokens(tokens *schema.Tokens) (jobs *schema.Jobs, err error) {
+func (f *Foreman) pullJobs(tokens *schema.Tokens) (jobs *schema.Jobs, err error) {
 	wg := sync.WaitGroup{}
 	pulledJobs := make(chan *schema.Jobs, len(*tokens))
 
@@ -69,9 +85,11 @@ func (f *Foreman) useTokens(tokens *schema.Tokens) (jobs *schema.Jobs, err error
 	wg.Wait()
 	close(pulledJobs)
 
-	//jobs := &schema.Jobs{}
+	jobs = &schema.Jobs{}
 	for js := range pulledJobs {
-		log.Info(js)
+		if js != nil {
+			*jobs = append(*jobs, *js...)
+		}
 	}
 
 	return jobs, nil
@@ -79,7 +97,7 @@ func (f *Foreman) useTokens(tokens *schema.Tokens) (jobs *schema.Jobs, err error
 
 func (f *Foreman) goPull(wg *sync.WaitGroup, t schema.Token, result chan<- *schema.Jobs) {
 	defer wg.Done()
-	jobs, err := f.pullJobs(&t)
+	jobs, err := f.useToken(&t)
 	if err != nil {
 		log.Errorf("failed to pull jobs with token %v: %v", t.ID, err)
 	}
@@ -87,11 +105,35 @@ func (f *Foreman) goPull(wg *sync.WaitGroup, t schema.Token, result chan<- *sche
 }
 
 // Pull jobs with passed token
-func (f *Foreman) pullJobs(token *schema.Token) (jobs *schema.Jobs, err error) {
+func (f *Foreman) useToken(token *schema.Token) (jobs *schema.Jobs, err error) {
 	// Make sure token is alive
 	if err := token.Refresh(f.db); err != nil {
 		log.Error(err)
 		return nil, schema.ErrFailedToRefreshToken
+	}
+
+	uri := fmt.Sprintf("https://esi.tech.ccp.is/latest/characters/%v/industry/jobs/?include_completed=true&token=%v",
+		token.CharacterID, token.AccessToken,
+	)
+
+	resp, err := http.Get(uri)
+	if err != nil {
+		log.Errorf("failed to get: %v", err)
+		return nil, errors.New("failed to get jobs")
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Errorf("failed to read body: %v", err)
+		return nil, errors.New("failed to read body")
+	}
+
+	jobs = &schema.Jobs{}
+	err = jobs.UnmarshalJSON(body)
+	if err != nil {
+		log.Errorf("failed to unmarshal body: %v", err)
+		return nil, errors.New("failed to unmarshal body")
 	}
 
 	return jobs, nil
