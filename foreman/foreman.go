@@ -50,15 +50,12 @@ func (f *Foreman) UpdateJobs() {
 	}
 
 	log.Debugf("pulled jobs: %v", len(*jobs))
-	log.Debugf("%+v", (*jobs)[0])
 
+	// Save to db
 	err = jobs.Save(f.db)
 	if err != nil {
 		log.Errorf("failed to save jobs: %v", err)
 	}
-
-	// Upsert to db
-
 }
 
 // Get all industrial tokens from db
