@@ -36,7 +36,7 @@ func main() {
 		RedisClients: redisClients,
 	}
 
-	srv.Run("9962")
+	srv.Run(config.AppConfig.Port)
 }
 
 func getRedisClients() (*server.RedisClients, error) {
