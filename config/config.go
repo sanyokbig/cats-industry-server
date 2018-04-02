@@ -1,6 +1,9 @@
 package config
 
-import "github.com/caarlos0/env"
+import (
+	"github.com/caarlos0/env"
+	log "github.com/sirupsen/logrus"
+)
 
 var EveConfig struct {
 	ClientId    string `env:"CLIENT_ID"`
@@ -24,6 +27,14 @@ var RedisConfig struct {
 	RolesDB    int    `env:"REDIS_DB_ROLES"`
 }
 
+var ScheduleConfig struct {
+	UpdateJobs int `env:"SCHEDULE_UPDATE_JOBS"`
+}
+
+var AppConfig struct {
+	Port string `env:"APP_PORT"`
+}
+
 func Parse() {
 	err := env.Parse(&EveConfig)
 	if err != nil {
@@ -36,5 +47,16 @@ func Parse() {
 	err = env.Parse(&RedisConfig)
 	if err != nil {
 		panic(err)
+	}
+	err = env.Parse(&ScheduleConfig)
+	if err != nil {
+		panic(err)
+	}
+	err = env.Parse(&AppConfig)
+	if err != nil {
+		panic(err)
+	}
+	if AppConfig.Port == "" {
+		log.Warningf("app port is not set, consider setting APP_PORT variable")
 	}
 }

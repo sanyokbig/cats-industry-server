@@ -1,7 +1,7 @@
 INSERT INTO groups
 (id, name) VALUES
   (1, 'default'),
-  (2, 'industrialist'),
+  (2, 'industrial'),
   (3, 'super')
 ON CONFLICT DO NOTHING;
 

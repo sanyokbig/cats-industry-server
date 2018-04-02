@@ -1,13 +1,14 @@
 package auth
 
 import (
-	"github.com/sanyokbig/cats-industry-server/config"
-	"github.com/sanyokbig/cats-industry-server/schema"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/sanyokbig/cats-industry-server/config"
+	"github.com/sanyokbig/cats-industry-server/schema"
 )
 
 // Creates new token using authorization code
@@ -38,7 +39,7 @@ func CreateToken(code string) (token *schema.Token, err error) {
 		return nil, err
 	}
 
-	token.ExpiresAt = time.Now().Unix() + 5 //int64(token.ExpiresIn)
+	token.ExpiresAt = time.Now().Unix() + int64(token.ExpiresIn)
 
 	return token, nil
 }

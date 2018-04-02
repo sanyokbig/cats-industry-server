@@ -29,6 +29,17 @@ func NewSentinel(comms *comms.Comms, redis *redis.Client, postgres *postgres.Con
 	}
 }
 
+// Same as check but receives sessionID instead of userID
+func (s *Sentinel) CheckSession(sessionID string, role string) bool {
+	userID, err := s.comms.Get(sessionID)
+	if err != nil {
+		log.Errorf("failed to get sessionID: %v", err)
+		return false
+	}
+
+	return s.Check(userID, role)
+}
+
 // Check if user have required role.
 func (s *Sentinel) Check(userID uint, role string) bool {
 	key := strconv.Itoa(int(userID))

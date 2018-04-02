@@ -14,6 +14,7 @@ import (
 	"github.com/sanyokbig/cats-industry-server/postgres"
 
 	"github.com/go-errors/errors"
+	"github.com/jmoiron/sqlx"
 )
 
 //easyjson:json
@@ -28,6 +29,8 @@ type Token struct {
 	RefreshToken string `json:"refresh_token" db:"refresh_token"`
 }
 
+type Tokens []Token
+
 //easyjson:json
 type Owner struct {
 	CharacterID        uint   `json:"CharacterID"`
@@ -38,31 +41,60 @@ type Owner struct {
 	CharacterOwnerHash string `json:"CharacterOwnerHash"`
 }
 
+var (
+	ErrFailedToRefreshToken = errors.New("failed to refresh token")
+)
+
+// Refreshes token if needed
+func (t *Token) Refresh(db postgres.NamedQueryer) error {
+	if !t.IsExpired() {
+		return nil
+	}
+	log.Debugf("token %v expired, refreshing", t.ID)
+	err := t.refresh()
+	if err != nil {
+		return nil
+	}
+
+	t.ExpiresAt = time.Now().Unix() + int64(t.ExpiresIn)
+
+	err = t.Save(db)
+	if err != nil {
+		log.Warningf("failed to save refreshed token: %v", err)
+	}
+
+	return nil
+}
+
 // Updates token from Eve server
-func (t *Token) Refresh() error {
+func (t *Token) refresh() error {
 	c := &http.Client{}
 	url := fmt.Sprintf("https://login.eveonline.com/oauth/token?grant_type=refresh_token&refresh_token=%v", t.RefreshToken)
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.New("failed to prepare post request")
 	}
 
 	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(config.EveConfig.ClientId+":"+config.EveConfig.SecretKey)))
 
 	resp, err := c.Do(req)
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.New("failed to do post request")
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.New("failed to read response")
 	}
 
 	err = t.UnmarshalJSON(bodyBytes)
 	if err != nil {
-		return err
+		log.Error(err)
+		return errors.New("failed to unmarshal response")
 	}
 
 	log.Debugf("refreshed token %v", t)
@@ -133,6 +165,31 @@ func (t *Token) Save(db postgres.NamedQueryer) error {
 	err = rows.StructScan(t)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (t *Tokens) GetTokensOfScope(queryer sqlx.Queryer, setName string) error {
+	set, ok := ScopeSets[setName]
+	if !ok {
+		return errors.New(fmt.Sprintf("scope set with name '%v' not found", setName))
+	}
+	rows, err := queryer.Queryx(`
+		SELECT id, character_id, expires_at, scopes, access_token, refresh_token FROM tokens WHERE scopes = $1;
+	`, set)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	token := Token{}
+	for rows.Next() {
+		err := rows.StructScan(&token)
+		if err != nil {
+			return err
+		}
+		*t = append(*t, token)
 	}
 
 	return nil
