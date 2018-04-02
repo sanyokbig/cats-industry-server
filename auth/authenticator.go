@@ -5,6 +5,8 @@ import (
 
 	"io"
 
+	"sync"
+
 	"github.com/go-errors/errors"
 	"github.com/jmoiron/sqlx"
 	"github.com/sanyokbig/cats-industry-server/comms"
@@ -22,6 +24,8 @@ type Authenticator struct {
 	comms *comms.Comms
 	db    *postgres.Connection
 
+	m *sync.Mutex
+
 	pending map[string]string
 	add     chan string
 	remove  chan string
@@ -32,6 +36,7 @@ func New(comms *comms.Comms, conn *postgres.Connection) *Authenticator {
 		comms:   comms,
 		pending: map[string]string{},
 		db:      conn,
+		m:       new(sync.Mutex),
 	}
 }
 
@@ -40,11 +45,15 @@ func (auth *Authenticator) Run() {
 		select {
 		case toAdd := <-auth.comms.Pending.Add:
 			{
+				auth.m.Lock()
 				auth.pending[toAdd.State] = toAdd.Client
+				auth.m.Unlock()
 			}
 		case toRemove := <-auth.comms.Pending.Remove:
 			{
+				auth.m.Lock()
 				delete(auth.pending, toRemove)
+				auth.m.Unlock()
 			}
 		}
 	}
@@ -80,7 +89,9 @@ func (auth *Authenticator) HandleSSORequest(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Get ws client id
+	auth.m.Lock()
 	clientID, ok := auth.pending[state]
+	auth.m.Unlock()
 	if !ok {
 		return ErrUnrecognizedState
 	}

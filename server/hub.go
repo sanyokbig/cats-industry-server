@@ -57,8 +57,8 @@ func (h *Hub) Run() {
 			}
 
 			if _, ok := session[client]; ok {
-				delete(session, client)
 				close(client.send)
+				delete(session, client)
 			}
 
 			if len(session) == 0 {
