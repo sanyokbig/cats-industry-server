@@ -129,7 +129,7 @@ func (f *Foreman) useToken(token *schema.Token) (jobs *schema.Jobs, err error) {
 	jobs = &schema.Jobs{}
 	err = jobs.UnmarshalJSON(body)
 	if err != nil {
-		log.Errorf("failed to unmarshal body: %v", err)
+		log.Errorf("failed to unmarshal body: %v, body: %s", err, body)
 		return nil, errors.New("failed to unmarshal body")
 	}
 

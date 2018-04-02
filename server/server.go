@@ -60,5 +60,5 @@ func (s *Server) Run(port string) {
 	})
 
 	log.Infof("listening on :%v", port)
-	http.ListenAndServe(":"+port, nil)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
