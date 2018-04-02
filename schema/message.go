@@ -28,6 +28,21 @@ func (v *Payload) Deliver(target json.Unmarshaler) error {
 	return nil
 }
 
+// Packs source data into payload
+func (v *Payload) Pack(source json.Marshaler) error {
+	bytes, err := source.MarshalJSON()
+	if err != nil {
+		return err
+	}
+
+	err = v.UnmarshalJSON(bytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *Payload) SetAsDefaultAuthPayload() {
 	*p = Payload{
 		"user":  nil,

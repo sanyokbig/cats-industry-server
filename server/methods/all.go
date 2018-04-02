@@ -18,6 +18,7 @@ type Client interface {
 var all = map[string]Handler{
 	"login_request":  loginRequest,
 	"logoff_request": logoffRequest,
+	"get_jobs":       getJobs,
 }
 
 func Get(name string) Handler {
