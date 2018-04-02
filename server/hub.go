@@ -57,7 +57,6 @@ func (h *Hub) Run() {
 			}
 
 			if _, ok := session[client]; ok {
-				close(client.send)
 				delete(session, client)
 			}
 
@@ -71,6 +70,7 @@ func (h *Hub) Run() {
 					select {
 					case client.send <- message:
 					default:
+						log.Debugf("closing channel on broadcast")
 						close(client.send)
 						delete(session, client)
 					}

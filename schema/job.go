@@ -10,29 +10,29 @@ import (
 
 //easyjson:json
 type Job struct {
-	ID                   uint     `json:"id"`
-	EveID                uint     `json:"job_id"`
-	InstallerID          uint     `json:"installer_id"`
-	FacilityID           uint64   `json:"facility_id"`
-	StationID            uint64   `json:"station_id"`
-	ActivityID           uint     `json:"activity_id"`
-	BlueprintID          uint64   `json:"blueprint_id"`
-	BlueprintTypeID      uint     `json:"blueprint_type_id"`
-	BlueprintLocationID  uint64   `json:"blueprint_location_id"`
-	OutputLocationID     uint64   `json:"output_location_id"`
-	Runs                 uint     `json:"runs"`
-	Cost                 float32  `json:"cost"`
-	LicensedRuns         uint     `json:"licensed_runs"`
-	Probability          float64  `json:"probability"`
-	ProductTypeID        uint     `json:"product_type_id"`
-	Status               string   `json:"status"`
-	Duration             uint     `json:"duration"`
-	StartDate            UnixTime `json:"start_date"`
-	EndDate              UnixTime `json:"end_date"`
-	PauseDate            UnixTime `json:"pause_date"`
-	CompletedDate        UnixTime `json:"completed_date"`
-	CompletedCharacterID uint     `json:"completed_character_id"`
-	SuccessfulRuns       uint     `json:"successful_runs"`
+	ID                   uint     `json:"id" db:"id"`
+	EveID                uint     `json:"job_id" db:"eve_id"`
+	InstallerID          uint     `json:"installer_id" db:"installer_id"`
+	FacilityID           uint64   `json:"facility_id" db:"facility_id"`
+	StationID            uint64   `json:"station_id" db:"station_id"`
+	ActivityID           uint     `json:"activity_id" db:"activity_id"`
+	BlueprintID          uint64   `json:"blueprint_id" db:"blueprint_id"`
+	BlueprintTypeID      uint     `json:"blueprint_type_id" db:"blueprint_type_id"`
+	BlueprintLocationID  uint64   `json:"blueprint_location_id" db:"blueprint_location_id"`
+	OutputLocationID     uint64   `json:"output_location_id" db:"output_location_id"`
+	Runs                 uint     `json:"runs" db:"runs"`
+	Cost                 float32  `json:"cost" db:"cost"`
+	LicensedRuns         uint     `json:"licensed_runs" db:"licensed_runs"`
+	Probability          float64  `json:"probability" db:"probability"`
+	ProductTypeID        uint     `json:"product_type_id" db:"product_type_id"`
+	Status               string   `json:"status" db:"status"`
+	Duration             uint     `json:"duration" db:"duration"`
+	StartDate            UnixTime `json:"start_date" db:"start_date"`
+	EndDate              UnixTime `json:"end_date" db:"end_date"`
+	PauseDate            UnixTime `json:"pause_date" db:"pause_date"`
+	CompletedDate        UnixTime `json:"completed_date" db:"completed_date"`
+	CompletedCharacterID uint     `json:"completed_character_id" db:"completed_character_id"`
+	SuccessfulRuns       uint     `json:"successful_runs" db:"successful_runs"`
 }
 
 //easyjson:json

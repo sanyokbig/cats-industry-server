@@ -54,7 +54,7 @@ func (s *Sentinel) Check(userID uint, role string) bool {
 		log.Errorf("check failed: %v", err)
 		return false
 	}
-	log.Debug("got roles: %v", roles)
+	log.Debugf("got roles: %v", roles)
 
 	_, ok := roles[role]
 	return ok

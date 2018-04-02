@@ -21,7 +21,7 @@ func (f *Foreman) GetJobs() (*schema.Jobs, error) {
 
 	jobs, job := schema.Jobs{}, schema.Job{}
 	for rows.Next() {
-		err = rows.StructScan(job)
+		err = rows.StructScan(&job)
 		if err != nil {
 			return nil, err
 		}

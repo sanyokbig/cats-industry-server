@@ -7,8 +7,7 @@ import (
 
 func getJobs(c Client, req schema.Message) (resp *schema.Message, err error) {
 	log.Infof("get jobs request from session %v", c.GetSID())
-
-	resp = &schema.Message{}
+	resp = schema.NewMessage()
 
 	allowed := c.GetComms().Sentinel.CheckSession(c.GetSID(), "see_shared_jobs")
 	if !allowed {
@@ -22,12 +21,7 @@ func getJobs(c Client, req schema.Message) (resp *schema.Message, err error) {
 		return resp, err
 	}
 
-	err = resp.Payload.Pack(jobs)
-	if err != nil {
-		resp.Type = "get_jobs_fail"
-		return resp, err
-	}
-
+	resp.Payload["jobs"] = jobs
 	resp.Type = "get_jobs_ok"
 
 	log.Infof("get jobs success for session %v", c.GetSID())
