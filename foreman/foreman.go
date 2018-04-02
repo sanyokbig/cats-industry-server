@@ -41,8 +41,8 @@ func (f *Foreman) UpdateJobs() {
 	}
 
 	log.Debugf("industrial tokens: %v", tokens)
-	// Get all jobs using token
 
+	// Get all jobs using token
 	jobs, err := f.pullJobs(tokens)
 	if err != nil {
 		log.Errorf("failed to pull jobs: %v", err)

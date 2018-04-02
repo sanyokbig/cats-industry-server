@@ -33,13 +33,13 @@ func (s *Schedule) Run() {
 	updateJobsEvery := time.Minute * time.Duration(s.updateJobs)
 	jobsUpdate := time.NewTicker(updateJobsEvery)
 
-	// Initial ran
+	// Initial run
 	s.comms.Foreman.UpdateJobs()
 
 	for {
 		select {
 		case <-jobsUpdate.C:
-			//s.comms.Foreman.UpdateJobs()
+			s.comms.Foreman.UpdateJobs()
 		case <-s.stop:
 			log.Info("schedule stop called, exiting")
 			break
