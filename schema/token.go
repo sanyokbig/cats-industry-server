@@ -19,14 +19,16 @@ import (
 
 //easyjson:json
 type Token struct {
-	ID           uint   `db:"id"`
-	CharacterID  uint   `db:"character_id"`
-	ExpiresAt    int64  `db:"expires_at"`
-	Type         string `db:"type"`
-	Scopes       string `db:"scopes"`
-	ExpiresIn    int    `json:"expires_in"`
-	AccessToken  string `json:"access_token" db:"access_token"`
-	RefreshToken string `json:"refresh_token" db:"refresh_token"`
+	ID               uint   `db:"id"`
+	CharacterID      uint   `db:"character_id"`
+	ExpiresAt        int64  `db:"expires_at"`
+	Type             string `db:"type"`
+	Scopes           string `db:"scopes"`
+	ExpiresIn        int    `json:"expires_in"`
+	AccessToken      string `json:"access_token" db:"access_token"`
+	RefreshToken     string `json:"refresh_token" db:"refresh_token"`
+	Error            string `json:"error"`
+	ErrorDescription string `json:"error_description"`
 }
 
 type Tokens []Token
@@ -53,14 +55,15 @@ func (t *Token) Refresh(db postgres.NamedQueryer) error {
 	log.Debugf("token %v expired, refreshing", t.ID)
 	err := t.refresh()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	t.ExpiresAt = time.Now().Unix() + int64(t.ExpiresIn)
 
 	err = t.Save(db)
 	if err != nil {
-		log.Warningf("failed to save refreshed token: %v", err)
+		log.Errorf("failed to save refreshed token: %v", err)
+		return err
 	}
 
 	return nil
@@ -95,6 +98,9 @@ func (t *Token) refresh() error {
 	if err != nil {
 		log.Error(err)
 		return errors.New("failed to unmarshal response")
+	}
+	if t.Error != "" {
+		return fmt.Errorf("%v: %v", t.Error, t.ErrorDescription)
 	}
 
 	log.Debugf("refreshed token %v", t)
@@ -139,7 +145,7 @@ func (t *Token) GetOwner() (*Owner, error) {
 
 // Updates token from Eve server
 func (t Token) IsExpired() bool {
-	return time.Now().Unix() >= t.ExpiresAt
+	return time.Now().UTC().Unix() >= t.ExpiresAt
 }
 
 // Saves token to postgres and updates id in struct

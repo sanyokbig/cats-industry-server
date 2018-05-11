@@ -4,5 +4,5 @@ import "github.com/sanyokbig/cats-industry-server/schema"
 
 type Foreman interface {
 	UpdateJobs()
-	GetJobs() (*schema.Jobs, error)
+	GetJobs(params schema.GetParams) (*schema.Jobs, error)
 }

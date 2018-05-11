@@ -2,7 +2,7 @@ package foreman
 
 import "github.com/sanyokbig/cats-industry-server/schema"
 
-func (f *Foreman) GetJobs() (*schema.Jobs, error) {
+func (f *Foreman) GetJobs(params schema.GetParams) (*schema.Jobs, error) {
 	query := `
 		select 
  			id, eve_id, installer_id, facility_id, 

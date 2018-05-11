@@ -15,7 +15,14 @@ func getJobs(c Client, req schema.Message) (resp *schema.Message, err error) {
 		return resp, nil
 	}
 
-	jobs, err := c.GetComms().Foreman.GetJobs()
+	getParams := schema.GetParams{}
+	err = req.Payload.Deliver(&getParams)
+	if err != nil {
+		resp.Type = "get_jobs_fail"
+		return resp, err
+	}
+
+	jobs, err := c.GetComms().Foreman.GetJobs(getParams)
 	if err != nil {
 		resp.Type = "get_jobs_fail"
 		return resp, err

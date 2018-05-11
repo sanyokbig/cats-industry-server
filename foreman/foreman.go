@@ -105,7 +105,7 @@ func (f *Foreman) goPull(wg *sync.WaitGroup, t schema.Token, result chan<- *sche
 func (f *Foreman) useToken(token *schema.Token) (jobs *schema.Jobs, err error) {
 	// Make sure token is alive
 	if err := token.Refresh(f.db); err != nil {
-		log.Error(err)
+		log.Error("failed to refresh token: %v", err)
 		return nil, schema.ErrFailedToRefreshToken
 	}
 
