@@ -777,6 +777,8 @@ func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema7(in *jlexe
 			out.StationID = uint64(in.Uint64())
 		case "activity_id":
 			out.ActivityID = uint(in.Uint())
+		case "activity_name":
+			out.ActivityName = string(in.String())
 		case "blueprint_id":
 			out.BlueprintID = uint64(in.Uint64())
 		case "blueprint_type_id":
@@ -795,6 +797,8 @@ func easyjsonCef4e921DecodeGithubComSanyokbigCatsIndustryServerSchema7(in *jlexe
 			out.Probability = float64(in.Float64())
 		case "product_type_id":
 			out.ProductTypeID = uint(in.Uint())
+		case "product_name":
+			out.ProductName = string(in.String())
 		case "status":
 			out.Status = string(in.String())
 		case "duration":
@@ -894,6 +898,16 @@ func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema7(out *jwri
 		out.Uint(uint(in.ActivityID))
 	}
 	{
+		const prefix string = ",\"activity_name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.ActivityName))
+	}
+	{
 		const prefix string = ",\"blueprint_id\":"
 		if first {
 			first = false
@@ -982,6 +996,16 @@ func easyjsonCef4e921EncodeGithubComSanyokbigCatsIndustryServerSchema7(out *jwri
 			out.RawString(prefix)
 		}
 		out.Uint(uint(in.ProductTypeID))
+	}
+	{
+		const prefix string = ",\"product_name\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.ProductName))
 	}
 	{
 		const prefix string = ",\"status\":"

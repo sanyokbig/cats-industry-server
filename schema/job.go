@@ -16,6 +16,7 @@ type Job struct {
 	FacilityID           uint64   `json:"facility_id" db:"facility_id"`
 	StationID            uint64   `json:"station_id" db:"station_id"`
 	ActivityID           uint     `json:"activity_id" db:"activity_id"`
+	ActivityName         string   `json:"activity_name" db:"activity_name"`
 	BlueprintID          uint64   `json:"blueprint_id" db:"blueprint_id"`
 	BlueprintTypeID      uint     `json:"blueprint_type_id" db:"blueprint_type_id"`
 	BlueprintLocationID  uint64   `json:"blueprint_location_id" db:"blueprint_location_id"`
@@ -25,6 +26,7 @@ type Job struct {
 	LicensedRuns         uint     `json:"licensed_runs" db:"licensed_runs"`
 	Probability          float64  `json:"probability" db:"probability"`
 	ProductTypeID        uint     `json:"product_type_id" db:"product_type_id"`
+	ProductName          string   `json:"product_name" db:"product_name"`
 	Status               string   `json:"status" db:"status"`
 	Duration             uint     `json:"duration" db:"duration"`
 	StartDate            UnixTime `json:"start_date" db:"start_date"`

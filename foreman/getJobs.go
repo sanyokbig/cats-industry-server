@@ -5,13 +5,35 @@ import "github.com/sanyokbig/cats-industry-server/schema"
 func (f *Foreman) GetJobs(params schema.GetParams) (*schema.Jobs, error) {
 	query := `
 		select 
- 			id, eve_id, installer_id, facility_id, 
- 			station_id, activity_id, blueprint_id, blueprint_type_id, 
- 			blueprint_location_id, output_location_id, runs, cost,
- 		 	licensed_runs, probability, product_type_id, status, 
- 		 	duration, start_date, end_date, pause_date, 
- 		 	completed_date, completed_character_id, successful_runs
- 		from jobs `
+ 			j.id, 
+ 			eve_id, 
+ 			installer_id, 
+ 			facility_id, 
+ 			station_id, 
+ 			activity_id, 
+ 			blueprint_id, 
+ 			blueprint_type_id, 
+ 			blueprint_location_id, 
+ 			output_location_id, 
+ 			runs, 
+ 			cost,
+ 		 	licensed_runs, 
+ 		 	probability, 
+ 		 	product_type_id, 
+ 		 	status, 
+ 		 	duration,
+ 		 	start_date, 
+ 		 	end_date, 
+ 		 	pause_date, 
+ 		 	completed_date, 
+ 		 	completed_character_id, 
+ 		 	successful_runs, 
+ 		 	pt.name product_name,
+		    a.name activity_name
+ 		from jobs j
+		left join product_types pt on j.product_type_id = pt.id
+		left join ram_activities a on j.activity_id = a.id
+`
 
 	rows, err := f.db.Queryx(query)
 	if err != nil {
