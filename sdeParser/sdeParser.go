@@ -41,7 +41,7 @@ func (p *SdeImporter) ImportActivities(sdePath string) error {
 	}
 	values = values[:len(values)-1]
 	query := fmt.Sprintf(`
-		insert into ram_activities (id, name, description, icon) 
+		insert into sde_ram_activities (id, name, description, icon) 
 		values %v on conflict (id) do update set 
 			name = excluded.name, 
 			description = excluded.description, 
@@ -74,7 +74,7 @@ func (p *SdeImporter) ImportProductTypes(sdePath string) error {
 	}
 	values = values[:len(values)-1]
 	query := fmt.Sprintf(`
-		insert into product_types (id, name) 
+		insert into sde_product_types (id, name) 
 		values %v on conflict (id) do update set
 		name = excluded.name`, values)
 	_, err = p.postgres.Exec(query)

@@ -31,12 +31,11 @@ func (f *Foreman) GetJobs(params schema.GetParams) (*schema.Jobs, error) {
  		 	pt.name product_name,
 		    a.name activity_name
  		from jobs j
-		left join product_types pt on j.product_type_id = pt.id
-		left join ram_activities a on j.activity_id = a.id
-		where status != 'delivered'
+		left join sde_product_types pt on j.product_type_id = pt.id
+		left join sde_ram_activities a on j.activity_id = a.id
+ 		where status != 'delivered'
 		order by end_date asc
 `
-
 	rows, err := f.db.Queryx(query)
 	if err != nil {
 		return nil, err
