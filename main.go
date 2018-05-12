@@ -4,6 +4,7 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/sanyokbig/cats-industry-server/config"
 	"github.com/sanyokbig/cats-industry-server/postgres"
+	"github.com/sanyokbig/cats-industry-server/sdeParser"
 	"github.com/sanyokbig/cats-industry-server/server"
 	log "github.com/sirupsen/logrus"
 )
@@ -34,6 +35,18 @@ func main() {
 	srv := server.Server{
 		Postgres:     db,
 		RedisClients: redisClients,
+	}
+
+	if config.AppConfig.ImportSDE {
+		importer := sdeParser.NewSdeImporter(db)
+		err = importer.ImportActivities(`./.data/sde/bsd/ramActivities.yaml`)
+		if err != nil {
+			panic(err)
+		}
+		err = importer.ImportProductTypes(`./.data/sde/fsd/typeIDs.yaml`)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	srv.Run(config.AppConfig.Port)

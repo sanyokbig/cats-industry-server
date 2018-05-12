@@ -32,7 +32,8 @@ var ScheduleConfig struct {
 }
 
 var AppConfig struct {
-	Port string `env:"APP_PORT"`
+	Port      string `env:"APP_PORT"`
+	ImportSDE bool   `env:"IMPORT_SDE"`
 }
 
 func Parse() {
